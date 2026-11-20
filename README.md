@@ -1,4 +1,4 @@
-# Atelier du Compositeur
+# L'Atelier d'Hydrolaire
 
 Un parcours interactif pour apprendre à composer sur **FL Studio Producer Edition**, avec **Vital** et **BBC Symphony Orchestra** : électro, house, rap et surtout musique de film.
 

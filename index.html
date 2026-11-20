@@ -1,0 +1,1400 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style></head><body><title>Atelier du Compositeur</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout : console de studio — en-tête collant avec filtre de genre, onglets, colonne de contenu ~1100px.
+   Couleur : ardoise profonde + laiton (cuivres de l'orchestre), une couleur par genre. */
+:root{
+  --bg:#15141b; --surface:#1e1c26; --raise:#272433; --line:#363244;
+  --fg:#ece9f3; --muted:#a39db4; --accent:#d9a648; --accent-ink:#1b1505;
+  --electro:#6aa8ff; --house:#ea72b0; --rap:#ee8a4c; --film:#d9a648; --ok:#5cc98b;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", Consolas, monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){ :root:not([data-theme="dark"]){
+  --bg:#f3f3f7; --surface:#ffffff; --raise:#ebeaf1; --line:#d6d3e0;
+  --fg:#1c1a25; --muted:#5d586d; --accent:#9a6a12; --accent-ink:#fff8e8;
+  --electro:#2a6ad1; --house:#b52f78; --rap:#b8551c; --film:#9a6a12; --ok:#1f8a52;
+  color-scheme:light; } }
+:root[data-theme="light"]{
+  --bg:#f3f3f7; --surface:#ffffff; --raise:#ebeaf1; --line:#d6d3e0;
+  --fg:#1c1a25; --muted:#5d586d; --accent:#9a6a12; --accent-ink:#fff8e8;
+  --electro:#2a6ad1; --house:#b52f78; --rap:#b8551c; --film:#9a6a12; --ok:#1f8a52;
+  color-scheme:light; }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.6}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:1100px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);line-height:1.15;text-wrap:balance;margin:0}
+h2{font-size:clamp(1.5rem,3.2vw,2.1rem);font-weight:800}
+h3{font-size:1.15rem;font-weight:700}
+p{margin:0}
+a{color:var(--accent)}
+code,kbd,.mono{font-family:var(--mono);font-size:.86em}
+kbd{background:var(--raise);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;white-space:nowrap}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* En-tête */
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding-block:14px 10px}
+.brand{display:flex;align-items:center;gap:12px}
+.staff{width:38px;height:28px;flex:none}
+.brand h1{font-size:1.25rem;font-weight:800;letter-spacing:-.01em}
+.brand small{display:block;color:var(--muted);font-size:.78rem;font-family:var(--mono)}
+.genres{display:flex;flex-wrap:wrap;gap:6px}
+.chip{--c:var(--accent);border:1px solid var(--line);background:transparent;color:var(--fg);font:500 .85rem var(--body);padding:5px 12px;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+.chip::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c)}
+.chip[aria-pressed="true"]{background:var(--c);border-color:var(--c);color:var(--bg)}
+.chip[aria-pressed="true"]::before{background:var(--bg)}
+.chip[data-g="all"]::before{background:conic-gradient(var(--electro) 0 25%,var(--house) 0 50%,var(--rap) 0 75%,var(--film) 0)}
+nav.tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+nav.tabs a{color:var(--muted);text-decoration:none;font-weight:500;padding:8px 14px 10px;border-bottom:2px solid transparent;white-space:nowrap}
+nav.tabs a[aria-current="page"]{color:var(--fg);border-color:var(--accent)}
+nav.tabs a:hover{color:var(--fg)}
+
+main{padding-block:28px 80px}
+section.view{display:grid;gap:22px}
+.lede{color:var(--muted);max-width:68ch}
+.g-electro{--c:var(--electro)} .g-house{--c:var(--house)} .g-rap{--c:var(--rap)} .g-film{--c:var(--film)} .g-all{--c:var(--accent)}
+.tag{display:inline-block;font:500 .7rem var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--c);border:1px solid color-mix(in srgb,var(--c) 45%,transparent);border-radius:4px;padding:0 6px;margin-right:4px}
+
+/* Parcours */
+.progress{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.bar{flex:1 1 220px;height:10px;background:var(--raise);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .4s}
+.pct{font:600 1rem var(--mono);font-variant-numeric:tabular-nums}
+.stages{display:grid;gap:10px;counter-reset:st}
+details.stage{background:var(--surface);border:1px solid var(--line);border-radius:10px}
+details.stage>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:14px 16px}
+details.stage>summary::-webkit-details-marker{display:none}
+.num{font:700 1.4rem var(--display);color:var(--accent);width:2.2ch;text-align:right;font-variant-numeric:tabular-nums}
+.stage-t{min-width:0}
+.stage-t p{color:var(--muted);font-size:.9rem}
+.count{font:500 .8rem var(--mono);color:var(--muted);white-space:nowrap}
+.count.done{color:var(--ok)}
+.stage-body{padding:0 16px 16px 16px;display:grid;gap:14px;border-top:1px solid var(--line);padding-top:14px}
+.tasks{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.tasks label{display:grid;grid-template-columns:20px 1fr;gap:10px;align-items:start;cursor:pointer}
+.tasks input{width:18px;height:18px;margin-top:3px;accent-color:var(--accent)}
+.tasks input:checked+span{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line)}
+.tip{background:var(--raise);border-radius:8px;padding:10px 14px;font-size:.92rem}
+.tip b{color:var(--accent)}
+
+/* Fiches genre */
+.genre-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,480px),1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;display:grid;gap:14px;align-content:start;min-width:0}
+.card-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;border-bottom:2px solid var(--c);padding-bottom:10px}
+.card-head h3{font-size:1.45rem}
+.specs{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.spec{background:var(--raise);border-radius:8px;padding:8px 10px}
+.spec dt{font:500 .68rem var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.spec dd{margin:0;font-weight:600;font-variant-numeric:tabular-nums}
+.block h4{margin:0 0 6px;font:600 .78rem var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--c)}
+.block ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.chain{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.chain span{background:var(--raise);border:1px solid var(--line);border-radius:6px;padding:2px 8px;font:500 .82rem var(--mono)}
+.chain em{color:var(--muted);font-style:normal}
+
+/* Modèles */
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;color:var(--muted);font-size:.88rem}
+.model-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:14px}
+.model{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--c);border-radius:10px;padding:16px;display:grid;gap:10px;align-content:start}
+.model .meta{display:flex;gap:10px;flex-wrap:wrap;color:var(--muted);font:500 .78rem var(--mono)}
+.model ol{margin:0;padding-left:20px;display:grid;gap:5px;font-size:.93rem}
+.model .goal{font-size:.9rem;color:var(--muted)}
+.model .goal b{color:var(--fg)}
+.done-btn{justify-self:start;border:1px solid var(--line);background:var(--raise);color:var(--fg);border-radius:6px;padding:5px 12px;font:500 .85rem var(--body);cursor:pointer}
+.done-btn[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:var(--bg)}
+
+/* Tables */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:600 .72rem var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--raise)}
+tr:last-child td{border-bottom:0}
+td.mono{white-space:nowrap;font-variant-numeric:tabular-nums}
+
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px}
+.sub{display:flex;gap:6px;flex-wrap:wrap}
+.sub button{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:6px;padding:6px 12px;font:500 .88rem var(--body);cursor:pointer}
+.sub button[aria-pressed="true"]{color:var(--fg);background:var(--raise);border-color:var(--accent)}
+.recipe{display:grid;gap:6px}
+.recipe h4{margin:0;font-family:var(--display);font-size:1.05rem}
+.recipe p{color:var(--muted);font-size:.9rem}
+
+/* Atelier */
+.prog-list{display:grid;gap:8px}
+.prog{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;background:var(--raise);border:1px solid transparent;border-radius:8px;padding:10px 12px;cursor:pointer;text-align:left;color:var(--fg);font:inherit}
+.prog[aria-pressed="true"]{border-color:var(--c);background:color-mix(in srgb,var(--c) 12%,var(--raise))}
+.prog small{display:block;color:var(--muted)}
+.chords{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.chord{background:var(--raise);border-radius:8px;padding:12px 8px;text-align:center;border:2px solid transparent;transition:border-color .1s}
+.chord.on{border-color:var(--accent)}
+.chord b{display:block;font:800 1.3rem var(--display)}
+.chord span{font:400 .75rem var(--mono);color:var(--muted)}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:8px;padding:9px 18px;font:600 .95rem var(--body);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+input[type=number],select{background:var(--raise);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:500 .95rem var(--mono);width:6.5em}
+label.inl{display:inline-flex;gap:8px;align-items:center;color:var(--muted);font-size:.9rem}
+.price{font:600 .7rem var(--mono);letter-spacing:.05em;text-transform:uppercase;border-radius:4px;padding:1px 7px;white-space:nowrap}
+.price.free{background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok)}
+.price.cheap{background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent)}
+.price.paid{background:var(--raise);color:var(--muted)}
+.tool{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:8px;align-content:start}
+.tool-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.tool-head h4{margin:0;font:700 1.05rem var(--display)}
+.tool p{color:var(--muted);font-size:.9rem}
+.tool-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:.85rem}
+.tool-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px}
+.cat-title{display:flex;align-items:baseline;gap:10px;margin-top:6px}
+.cat-title span{color:var(--muted);font-size:.9rem}
+/* HUD & quêtes */
+.hud{display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 14px 4px 4px;font-size:.82rem}
+.hud .lv{background:var(--accent);color:var(--accent-ink);font:800 .85rem var(--display);border-radius:999px;min-width:28px;height:28px;display:grid;place-items:center;padding:0 6px}
+.hud .mini{width:70px;height:5px;background:var(--raise);border-radius:9px;overflow:hidden;display:block;margin-top:2px}
+.hud .mini i{display:block;height:100%;background:var(--accent)}
+.hero-q{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px}
+.big-lv{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;font:800 2.2rem var(--display);color:var(--accent-ink);background:conic-gradient(var(--accent) calc(var(--p)*1%),var(--raise) 0);position:relative}
+.big-lv span{position:absolute;inset:7px;border-radius:50%;background:var(--accent);display:grid;place-items:center}
+.hero-q h2{font-size:1.6rem}
+.hero-q p{color:var(--muted)}
+.recs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px}
+.rec{background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--c);border-radius:10px;padding:14px 16px;display:grid;gap:8px;align-content:start}
+.rec .kind{font:600 .7rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--c)}
+.rec .xp{font:600 .75rem var(--mono);color:var(--ok)}
+.map{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.node{position:relative;overflow:hidden;background:var(--raise);border:1px solid var(--line);border-radius:8px;padding:10px 12px;text-decoration:none;color:var(--fg);font-size:.85rem;min-height:64px}
+.node .fill{position:absolute;inset:auto 0 0 0;height:4px;background:var(--accent)}
+.node b{display:block;font:700 .75rem var(--mono);color:var(--muted)}
+.node.cur{border-color:var(--accent)}
+.node.full{border-color:var(--ok)} .node.full .fill{background:var(--ok)}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.badge{background:var(--surface);border:1px dashed var(--line);border-radius:10px;padding:12px;text-align:center;display:grid;gap:4px;opacity:.45}
+.badge.on{opacity:1;border-style:solid;border-color:var(--accent)}
+.badge .ico{font-size:1.6rem;line-height:1}
+.badge b{font:700 .9rem var(--display)}
+.badge small{color:var(--muted);font-size:.75rem}
+/* Remake */
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:10px;align-items:end}
+.field{display:grid;gap:4px;font-size:.85rem;color:var(--muted)}
+.field input,.field select,textarea{width:100%;background:var(--raise);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;font:400 .95rem var(--body)}
+textarea{min-height:90px;resize:vertical}
+.rm-list{display:flex;gap:8px;flex-wrap:wrap}
+.rm-list button{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:8px;padding:8px 12px;font:500 .88rem var(--body);cursor:pointer;text-align:left}
+.rm-list button[aria-pressed="true"]{border-color:var(--accent);background:var(--raise)}
+.rm-list small{display:block;color:var(--muted);font-size:.75rem}
+.tap{width:100%;min-height:110px;border-radius:12px;border:2px dashed var(--accent);background:var(--raise);color:var(--fg);font:800 2rem var(--display);cursor:pointer;font-variant-numeric:tabular-nums}
+.tap:active{background:color-mix(in srgb,var(--accent) 20%,var(--raise))}
+.keys{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.keys button{border:1px solid var(--line);background:var(--raise);color:var(--fg);border-radius:6px;padding:8px 0;font:600 .85rem var(--mono);cursor:pointer}
+.plan{display:grid;gap:14px}
+.warn{border:1px solid var(--rap);border-radius:8px;padding:10px 14px;font-size:.92rem}
+.status{color:var(--muted);font-size:.9rem}
+.vid-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:12px}
+/* Navigation en 3 espaces */
+nav.groups{display:flex;gap:6px;padding-bottom:4px}
+nav.groups button{flex:1 1 0;border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:8px;padding:6px 10px;font:600 .9rem var(--display);cursor:pointer;text-align:left}
+nav.groups button small{display:block;font:400 .72rem var(--body);color:var(--muted)}
+nav.groups button[aria-current="true"]{color:var(--fg);border-color:var(--accent);background:var(--surface)}
+@media (max-width:640px){
+  header{position:static}
+  .top{flex-wrap:nowrap;flex-direction:column;align-items:stretch;gap:8px}
+  .genres{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .brand small,nav.groups button small{display:none}
+}
+/* Clavier dessiné */
+.kb{position:relative;display:flex;height:130px;user-select:none;max-width:640px}
+.kb .w{flex:1;border:1px solid var(--line);background:#f7f6fb;border-radius:0 0 6px 6px;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;font:600 .68rem var(--mono);color:#555}
+.kb .b{position:absolute;top:0;height:62%;background:#24212c;border-radius:0 0 4px 4px;cursor:pointer;z-index:2;display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px;font:600 .6rem var(--mono);color:#ccc}
+.kb .on.w{background:var(--accent);color:var(--accent-ink)} .kb .on.b{background:var(--accent);color:var(--accent-ink)}
+.kb .root.w,.kb .root.b{box-shadow:inset 0 -6px 0 var(--ok)}
+/* Oreille, journal, quiz */
+.answers{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.answers button{border:1px solid var(--line);background:var(--raise);color:var(--fg);border-radius:8px;padding:10px;font:500 .9rem var(--body);cursor:pointer}
+.answers button.good{background:var(--ok);color:var(--bg);border-color:var(--ok)}
+.answers button.bad{border-color:var(--rap);color:var(--rap)}
+.heat{display:grid;grid-template-rows:repeat(7,14px);grid-auto-flow:column;grid-auto-columns:14px;gap:3px;overflow-x:auto;padding-bottom:4px}
+.heat i{border-radius:3px;background:var(--raise)}
+.heat i[data-l="1"]{background:color-mix(in srgb,var(--ok) 35%,var(--raise))}
+.heat i[data-l="2"]{background:color-mix(in srgb,var(--ok) 65%,var(--raise))}
+.heat i[data-l="3"]{background:var(--ok)}
+.timer{font:800 clamp(2.4rem,7vw,3.4rem) var(--display);font-variant-numeric:tabular-nums}
+.quiz{display:grid;gap:12px;background:var(--raise);border-radius:8px;padding:12px 14px}
+.quiz .answers button{background:var(--surface)}
+.answer{white-space:pre-wrap;background:var(--raise);border-radius:8px;padding:12px 14px;font-size:.93rem}
+.hits td input{width:100%;min-width:70px;background:var(--raise);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:4px 6px;font:400 .9rem var(--mono)}
+.okc{color:var(--ok)} .badc{color:var(--rap)}
+.org{display:grid;gap:10px}
+.org li{padding-left:2px}
+@media (max-width:520px){.chords{grid-template-columns:repeat(2,1fr)} .num{font-size:1.1rem}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">
+        <svg class="staff" viewBox="0 0 38 28" aria-hidden="true"><g stroke="currentColor" stroke-width="1.2" opacity=".55"><line x1="0" y1="4" x2="38" y2="4"/><line x1="0" y1="10" x2="38" y2="10"/><line x1="0" y1="16" x2="38" y2="16"/><line x1="0" y1="22" x2="38" y2="22"/></g><ellipse cx="12" cy="19" rx="4.2" ry="3" fill="var(--accent)" transform="rotate(-20 12 19)"/><line x1="15.8" y1="18" x2="15.8" y2="2" stroke="var(--accent)" stroke-width="1.8"/><ellipse cx="27" cy="13" rx="4.2" ry="3" fill="var(--accent)" transform="rotate(-20 27 13)"/><line x1="30.8" y1="12" x2="30.8" y2="0" stroke="var(--accent)" stroke-width="1.8"/></svg>
+        <div><h1>Atelier du Compositeur</h1><small>FL Studio Producer · Vital · BBC Symphony Orchestra</small></div>
+      </div>
+      <a class="hud" href="#quetes" id="hud" aria-label="Ton niveau"></a>
+      <div class="genres" role="group" aria-label="Filtrer par style">
+        <button class="chip" data-g="all">Tout</button>
+        <button class="chip g-electro" data-g="electro">Électro</button>
+        <button class="chip g-house" data-g="house">House</button>
+        <button class="chip g-rap" data-g="rap">Rap</button>
+        <button class="chip g-film" data-g="film">Film</button>
+      </div>
+    </div>
+    <nav class="groups" id="groups" aria-label="Espaces"></nav>
+    <nav class="tabs" id="tabs" aria-label="Sections"></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="view" id="v-quetes"></section>
+  <section class="view" id="v-journal" hidden></section>
+  <section class="view" id="v-oreille" hidden></section>
+  <section class="view" id="v-gammes" hidden></section>
+  <section class="view" id="v-image" hidden></section>
+  <section class="view" id="v-avis" hidden></section>
+  <section class="view" id="v-business" hidden></section>
+  <section class="view" id="v-remake" hidden></section>
+  <section class="view" id="v-videos" hidden></section>
+  <section class="view" id="v-parcours" hidden></section>
+  <section class="view" id="v-genres" hidden></section>
+  <section class="view" id="v-modeles" hidden></section>
+  <section class="view" id="v-outils" hidden></section>
+  <section class="view" id="v-boite" hidden></section>
+  <section class="view" id="v-organisation" hidden></section>
+  <section class="view" id="v-atelier" hidden></section>
+  <section class="view" id="v-rappel" hidden></section>
+</main>
+
+<script>
+const GN = {all:"Tous styles", electro:"Électro", house:"House", rap:"Rap", film:"Film"};
+// La progression est gardée dans le navigateur ET, quand la page est ouverte dans Claude, dans ton compte (db).
+// Chaque remake a son propre document (rm-<id>) pour ne jamais dépasser la taille d'un document.
+const SYNC = ["checks","models","installed","seen","quiz","ear","journal","spot"];
+let dbDoc = null, dbCol = null, syncT = null;
+const caps = {};
+async function cap(n){ if(!(n in caps)){ try{ caps[n] = window.claude ? await window.claude.use(n) : null; }catch(e){ caps[n] = null; } } return caps[n]; }
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v===null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k, v, quiet){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){}
+    if(SYNC.includes(k) && !quiet){ try{ localStorage.setItem("updatedAt", Date.now()); }catch(e){} queueSync(); if(typeof hud==="function") hud(); } }
+};
+function queueSync(){ if(!dbDoc) return; clearTimeout(syncT); syncT = setTimeout(()=>{
+  const o = {updatedAt: store.get("updatedAt",0)}; SYNC.forEach(k=>o[k]=store.get(k,{}));
+  dbDoc.set(o).catch(()=>{}); }, 800); }
+const rmTimers = {};
+function syncRemake(r, gone){ if(!dbCol) return; const ref = dbCol.doc("rm-"+r.id);
+  if(gone){ ref.delete().catch(()=>{}); return; }
+  clearTimeout(rmTimers[r.id]); rmTimers[r.id] = setTimeout(()=>ref.set(JSON.parse(JSON.stringify(r))).catch(()=>{}), 800); }
+const esc = s => String(s??"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let genre = store.get("genre", "all");
+let checks = store.get("checks", {});
+const tagHtml = gs => gs.map(g => `<span class="tag g-${g}">${GN[g]}</span>`).join("");
+const fits = gs => genre==="all" || gs.includes("all") || gs.includes(genre);
+
+/* ---------- PARCOURS ---------- */
+const STAGES = [
+ {t:"Un studio qui répond au doigt", d:"Latence, clavier MIDI, template : le confort avant tout.", tasks:[
+  ["all","Régler l'audio : Options › Audio settings, pilote « FL Studio ASIO ». Buffer bas (≈256) pour jouer au clavier, plus haut (≈1024) pour mixer un gros projet."],
+  ["all","Activer le clavier MIDI : Options › MIDI settings, sélectionne-le dans Input, clique Enable. Joue : le canal sélectionné du Channel Rack doit sonner."],
+  ["all","Assigner un potard ou fader : clic droit sur n'importe quel bouton de FL › Link to controller…, puis bouge le contrôle du clavier."],
+  ["all","Préparer un projet de départ avec tes pistes de mixer routées et nommées, et le garder comme modèle : à chaque nouveau morceau, ouvre-le puis fais tout de suite File › Save as sous un nouveau nom."],
+  ["film","Template orchestral : une voie BBC SO par instrument, dans l'ordre de la partition (bois, cuivres, percussions, claviers, cordes), routées vers 4 bus (Bois / Cuivres / Perc / Cordes)."],
+  ["film","Lier la molette de modulation (CC1) et un fader (CC11) du clavier : ce sont la dynamique et l'expression de l'orchestre."]
+ ], tip:"<b>Filet de sécurité :</b> tu as joué une idée géniale sans enregistrer ? Tools › Dump score log to selected pattern récupère tout ce que tu as joué au clavier dans les dernières minutes."},
+ {t:"Rappel du flux FL", d:"Les fenêtres, l'audio, l'enregistrement au clavier.", tasks:[
+  ["all","Revoir les 5 fenêtres (F5 Playlist, F6 Channel Rack, F7 Piano Roll, F9 Mixer, Alt+F8 Browser) et le mode Pattern / Song (L)."],
+  ["all","Enregistrer au clavier MIDI : bouton REC, choisir « Notes and automation », décompte activé, puis quantifier légèrement (Ctrl+Q) pour garder du naturel."],
+  ["all","En Producer tu as les clips audio : glisse un sample ou une boucle directement dans la Playlist et étire-le (Stretch) au tempo du projet."],
+  ["all","Ouvrir Edison sur une piste du mixer pour enregistrer, nettoyer ou découper un son."],
+  ["rap","Découper une boucle dans Slicex (clic droit sur le sample › Chop, ou glisse-le dans Slicex) et rejouer les tranches au clavier."]
+ ]},
+ {t:"La théorie qui sert vraiment", d:"Gammes, accords, degrés. Le reste viendra en écoutant.", tasks:[
+  ["all","Connaître la gamme majeure et mineure naturelle dans 3 tonalités (Do, La mineur, Ré mineur). Dans le Piano Roll, l'outil Stamp affiche une gamme en surbrillance."],
+  ["all","Construire triades et accords de 7e (maj7, m7, 7) sur chaque degré, en les jouant au clavier."],
+  ["all","Apprendre 4 progressions : i–VI–III–VII, vi–IV–I–V, ii–V–I, i–iv–v. Elles sont jouables dans l'onglet Atelier."],
+  ["house","Accords enrichis : m9, maj9, 11. Typiques de la deep house."],
+  ["film","Modes : dorien (héroïque mélancolique), lydien (émerveillement, espace), phrygien (menace, désert), mixolydien (aventure)."],
+  ["film","Médiantes chromatiques (Do → Mi, Do → La♭) : l'effet « magie » des grandes musiques de film."]
+ ], tip:"<b>Note FL :</b> par défaut FL nomme le Do central <code>C5</code> (les autres logiciels disent souvent C4). Tous les noms de notes de ce site suivent la convention FL."},
+ {t:"Rythme et groove", d:"Ce qui fait bouger la tête.", tasks:[
+  ["all","Varier la vélocité des charleys (hats) : un temps fort, un temps faible. Rien ne doit être à 100 % partout."],
+  ["all","Utiliser le Swing du Channel Rack (bouton en haut) : 20–50 % donnent du groove."],
+  ["house","Four-on-the-floor : kick sur chaque temps, clap sur 2 et 4, open hat sur les contretemps."],
+  ["rap","Rolls de hats : dans le Piano Roll, affine la grille (icône aimant) vers des valeurs plus petites, puis en triolets. Ajoute des montées de pitch sur les rolls."],
+  ["rap","Boom-bap : swing 55–60 %, snare légèrement en retard (quelques ms) pour le côté « laid back »."],
+  ["film","Ostinato de cordes en spiccato : croches et doubles croches avec accents irréguliers (3+3+2)."]
+ ]},
+ {t:"Sound design avec Vital", d:"Créer ses sons au lieu de chercher des presets.", tasks:[
+  ["all","Comprendre le trajet : oscillateurs › filtre › enveloppe d'amplitude › effets. Modifier un seul élément à la fois."],
+  ["all","Moduler par glisser-déposer : attrape une LFO ou ENV et lâche-la sur un bouton, puis règle la quantité."],
+  ["all","Refaire les 6 recettes de l'onglet Plugins (supersaw, pluck, reese, 808, pad, drone) et les sauvegarder dans ton propre dossier de presets."],
+  ["electro","Supersaw : unisson 7–9 voix, detune, stéréo large. Base de tous les drops."],
+  ["rap","808 en sinus avec glide (legato + temps de glissement) et saturation."],
+  ["film","Drone hybride : pad très lent + bruit filtré, à mélanger sous l'orchestre (style Zimmer / Göransson)."]
+ ]},
+ {t:"Arranger un morceau", d:"Une boucle n'est pas un morceau.", tasks:[
+  ["all","Tracer la courbe d'énergie avant d'arranger : où le morceau respire, où il explose."],
+  ["all","Règle des 8 mesures : quelque chose change toutes les 8 mesures (un élément entre, sort, ou varie)."],
+  ["all","Transitions : riser, crash inversé (reverse), filtre qui s'ouvre, silence d'un temps avant le drop."],
+  ["electro","Structure Intro › Build › Drop › Break › Build › Drop › Outro, sections de 16 ou 32 mesures."],
+  ["house","Intro et outro DJ-friendly : 16–32 mesures avec juste le beat."],
+  ["rap","Structure Intro 4 › Couplet 16 › Refrain 8 › Couplet 16 › Refrain 8 › Outro. Laisse de la place à la voix."],
+  ["film","Arrangement par vagues : exposer le thème à un pupitre, puis le passer à un autre, puis tutti."]
+ ]},
+ {t:"Mixer proprement", d:"Clarté, punch, espace.", tasks:[
+  ["all","Gain staging : chaque piste autour de −12 à −6 dB en crête, le Master jamais dans le rouge."],
+  ["all","EQ soustractif (Fruity Parametric EQ 2) : couper les graves inutiles sur tout ce qui n'est ni kick ni basse."],
+  ["all","Envois (sends) de reverb et delay sur des pistes dédiées plutôt qu'un plugin par piste."],
+  ["all","Comparer avec un morceau de référence au même volume perçu."],
+  ["house","Sidechain : flèche de routage du kick vers la piste de basse/accords (clic droit › Sidechain to this track), puis Fruity Limiter en mode COMP avec SIDECHAIN sur 1."],
+  ["electro","Sidechain plus marqué sur supersaws et pads, compression multibande (Vital ou Maximus) pour l'énergie."],
+  ["rap","Kick et 808 ne doivent pas se battre : choisir lequel porte le sub, ou les accorder et sidechainer l'808 au kick."],
+  ["film","Placement en profondeur : les mics BBC SO font déjà le travail ; une seule reverb commune légère pour tout l'orchestre."]
+ ]},
+ {t:"Orchestrer avec BBC Symphony Orchestra", d:"Penser en pupitres, pas en presets.", tasks:[
+  ["film","Écrire une ligne par instrument (pas de gros accords sur un seul patch « ensemble »)."],
+  ["film","Respecter les tessitures (table dans l'onglet Plugins) : un violoncelle trop aigu ou une contrebasse trop grave sonne faux."],
+  ["film","Dessiner CC1 (dynamique) sur toutes les notes longues : chaque phrase doit respirer (crescendo / decrescendo)."],
+  ["film","Choisir l'articulation selon le rôle : Legato pour les mélodies, Longs pour les tenues, Spiccato / Staccato pour les ostinatos, Pizzicato pour la légèreté."],
+  ["film","Doublures : mélodie aux violons 1 + violons 2 à l'octave grave, ou cors + violoncelles à l'unisson pour un thème héroïque."],
+  ["film","Voicing ouvert : grands intervalles en bas (quintes, octaves), serrés en haut. Jamais de tierces dans le grave."]
+ ], tip:"<b>Version :</b> BBC SO existe en Discover (gratuite), Core et Pro. Certaines articulations, instruments et micros n'existent qu'en Core / Pro. Si un élément cité ici manque, prends le plus proche."},
+ {t:"Thèmes et harmonie avancée", d:"Ce qui rend une musique mémorable.", tasks:[
+  ["all","Écrire un motif de 4–8 notes, chantable, avec un saut caractéristique."],
+  ["all","Développer le motif : le transposer, l'inverser, changer son rythme, le réharmoniser."],
+  ["film","Leitmotiv : un thème par personnage ou idée, qui revient transformé (mineur, lent, au cor seul…)."],
+  ["film","Pédale : garder une note de basse pendant que les accords changent au-dessus. Énorme tension à peu de frais."],
+  ["electro","Hook de lead : une phrase courte répétée avec une variation en fin de boucle."],
+  ["rap","Mélodie de sample : 2–4 notes dans une gamme mineure, avec espace pour la voix."]
+ ]},
+ {t:"Composer à l'image", d:"Le métier de compositeur de film.", tasks:[
+  ["film","Charger une vidéo dans FL avec Fruity Video Player 2 (synchronisé à la Playlist)."],
+  ["film","Spotting : noter les timecodes des moments clés (coupes, actions, émotions) avant de composer."],
+  ["film","Placer un marqueur de temps (Time marker, dans le menu de la Playlist) sur chaque point de synchro. L'onglet « Synchro image » calcule le tempo idéal."],
+  ["film","Ajuster le tempo (automation de tempo) pour que les temps forts tombent sur les coupes."],
+  ["film","Rescorer une scène de 1 à 2 minutes : couper le son d'une bande-annonce ou d'un court-métrage et composer à la place."]
+ ]},
+ {t:"Master et export", d:"Finir et livrer.", tasks:[
+  ["all","Chaîne de master simple : EQ léger › compresseur doux › Maximus ou Fruity Limiter. Viser autour de −14 LUFS intégré pour le streaming, plus fort pour le club."],
+  ["all","Exporter en WAV 24 bits (Ctrl+R) pour l'archive, MP3 320 (Ctrl+Shift+R) pour partager."],
+  ["film","Exporter des stems (une piste par pupitre) : dans la fenêtre d'export, coche Split mixer tracks."],
+  ["rap","Livrer un beat : WAV master + stems (drums, 808, mélodie) + version sans tag."]
+ ]},
+ {t:"Routine et portfolio", d:"Le seul vrai secret : le volume de travail.", tasks:[
+  ["all","Finir un morceau par semaine, même imparfait."],
+  ["all","Analyser une référence par semaine : structure, instruments, tempo, tonalité, noté dans un carnet."],
+  ["all","Refaire « à l'oreille » des passages de morceaux que tu aimes, pour comprendre (sans les publier)."],
+  ["film","Constituer une démo de 3 scènes rescorées dans des styles différents (action, émotion, suspense)."],
+  ["all","Publier régulièrement et demander des retours précis (mix, arrangement, émotion)."]
+ ]}
+];
+
+function renderParcours(){
+  const el = document.getElementById("v-parcours");
+  let total=0, done=0;
+  const rows = STAGES.map((s,i)=>{
+    const tasks = s.tasks.map((t,j)=>({g:t[0], txt:t[1], id:`s${i}t${j}`})).filter(t=>fits([t.g]));
+    if(!tasks.length) return "";
+    const d = tasks.filter(t=>checks[t.id]).length; total+=tasks.length; done+=d;
+    return `<details class="stage" ${store.get("open"+i,false)?"open":""} data-i="${i}">
+      <summary><span class="num">${String(i+1).padStart(2,"0")}</span>
+        <span class="stage-t"><h3>${s.t}</h3><p>${s.d}</p></span>
+        <span class="count ${d===tasks.length?"done":""}">${d}/${tasks.length}</span></summary>
+      <div class="stage-body"><ul class="tasks">${tasks.map(t=>`<li><label><input type="checkbox" id="${t.id}" ${checks[t.id]?"checked":""}><span>${t.g!=="all"?tagHtml([t.g]):""}${t.txt}</span></label></li>`).join("")}</ul>
+      ${s.tip?`<div class="tip">${s.tip}</div>`:""}</div></details>`;
+  }).join("");
+  const pct = total? Math.round(done/total*100):0;
+  el.innerHTML = `<div><h2>Ton parcours, étape par étape</h2>
+    <p class="lede">Douze étapes dans l'ordre, du réglage du studio jusqu'à la composition à l'image. Coche ce que tu maîtrises ; ta progression reste enregistrée dans ce navigateur. Filtre par style en haut pour ne voir que ce qui te concerne (${GN[genre]}).</p></div>
+    <div class="progress"><div class="bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div><span class="pct">${pct} %</span><span class="count">${done} / ${total} acquis</span></div>
+    <div class="stages">${rows}</div>`;
+  el.querySelectorAll("details.stage").forEach(d=>{ const v = VIDEOS.filter(x=>x.s===+d.dataset.i && fits(x.g)); if(v.length) d.querySelector(".stage-body").insertAdjacentHTML("beforeend",
+    `<div class="block"><h4 style="color:var(--accent)">Pour apprendre cette étape</h4><ul>${v.map(x=>`<li><a href="${vidUrl(x)}" target="_blank" rel="noopener">${x.t} ↗</a> <span class="count">${x.u?"article":"vidéos YouTube"}</span></li>`).join("")}</ul></div>`); });
+  cap("sample").then(s=>{ if(!s) return; el.querySelectorAll("details.stage").forEach(d=>{ const i=+d.dataset.i;
+    d.querySelector(".stage-body").insertAdjacentHTML("beforeend", `<div class="block"><h4 style="color:var(--accent)">Valider l'étape</h4>${quiz[i]?`<p class="okc">✓ Étape certifiée par quiz</p>`:""}
+      <div class="controls"><button class="btn ghost" data-quiz="${i}">${quiz[i]?"Refaire un quiz":"Teste-toi : 3 questions (+30 XP)"}</button></div><div class="qbox" style="display:grid;gap:10px"></div></div>`);
+    const b=d.querySelector("[data-quiz]"); b.onclick=()=>{ b.disabled=true; startQuiz(i, d.querySelector(".qbox")); }; }); });
+  el.querySelectorAll(".tasks input").forEach(cb=>cb.addEventListener("change",()=>{ checks[cb.id]=cb.checked; store.set("checks",checks); renderParcours(); }));
+  el.querySelectorAll("details.stage").forEach(d=>d.addEventListener("toggle",()=>store.set("open"+d.dataset.i,d.open)));
+}
+
+/* ---------- FICHES GENRE ---------- */
+const GENRES = {
+ electro:{name:"Électro / EDM", specs:[["Tempo","124–130 BPM"],["Tonalités","La m, Fa m, Do m"],["Mesures","16 ou 32 par section"],["Énergie","Build → Drop"]],
+  drums:["Kick puissant sur chaque temps dans le drop, clap/snare sur 2 et 4","Build : snare roll en noires › croches › doubles › triples croches sur 8 mesures","Crash au début de chaque section, riser de bruit blanc avant le drop"],
+  bass:["Basse à l'octave du lead, ou reese (2 scies désaccordées) en électro plus sombre","Sub séparé en sinus si la basse est très saturée"],
+  harmony:["vi–IV–I–V et i–VI–III–VII dominent","Lead supersaw qui joue l'accord entier + la mélodie au-dessus"],
+  chain:["Vital (supersaw)","Fruity Parametric EQ 2","Fruity Limiter (sidechain)","Fruity Reeverb 2 en envoi","Maximus sur le bus lead"],
+  mix:["Sidechain franc sur tout sauf le kick","Couper sous 150 Hz sur les leads, laisser le sub à la basse","Largeur stéréo sur les leads, mono pour kick et basse"],
+  errors:["Drop qui n'est pas plus fort que le build parce que le build est déjà saturé","Trop de couches de leads qui se masquent"],
+  refs:"Avicii, Martin Garrix, deadmau5, Justice, Madeon"},
+ house:{name:"House", specs:[["Tempo","120–126 BPM"],["Tonalités","La m, Ré m, Fa m"],["Swing","20–40 %"],["Accords","m7, m9, maj7"]],
+  drums:["Kick 4/4, clap ou snare sur 2 et 4","Open hat sur chaque contretemps (le « tss » entre les kicks)","Shaker en doubles croches avec swing, percussions (congas, rim) en contrepoint"],
+  bass:["Basse sur les contretemps ou en motifs syncopés courts","Deep house : basse ronde et chaude ; tech house : basse courte et percussive"],
+  harmony:["Stabs d'accords courts (orgue, piano, synthé) en m7 / m9","Progressions de 2 à 4 accords qui tournent longtemps"],
+  chain:["Vital (stab ou orgue)","FL Keys / FLEX pour piano","Fruity Delay 3 synchronisé","Fruity Limiter (sidechain)","Fruity Reeverb 2"],
+  mix:["Le kick est roi : tout le reste se plie autour","Sidechain léger et musical (pompe) sur basse et accords","Garder de la place dans les médiums pour un sample vocal"],
+  errors:["Boucle de 8 mesures répétée 6 minutes sans évolution","Hats trop forts et trop brillants"],
+  refs:"Daft Punk, Disclosure, Kerri Chandler, Fisher, Purple Disco Machine"},
+ rap:{name:"Rap / Trap / Boom-bap", specs:[["Trap","130–160 BPM (demi-temps)"],["Boom-bap","85–95 BPM"],["Tonalités","Do m, Fa m, Do♯ m"],["Clé","Espace pour la voix"]],
+  drums:["Trap : snare/clap sur le temps 3 (sensation demi-temps), hats en croches avec rolls","Boom-bap : kick et snare samplés, swing marqué, ghost notes","Variations des hats toutes les 2 mesures pour rester vivant"],
+  bass:["808 accordée dans la tonalité, glides entre les notes (portamento)","Boom-bap : basse jouée ou samplée, discrète"],
+  harmony:["Gammes mineures, mineur harmonique (sombre), phrygien","Mélodie simple de 2–4 notes, souvent un piano, une guitare ou un pluck","Sample découpé dans Slicex et réarrangé"],
+  chain:["Vital ou Sampler (808)","Slicex (samples)","Fruity Blood Overdrive / Fruity Fast Dist (saturation 808)","Fruity Compressor","Fruity Reeverb 2 sur la mélodie"],
+  mix:["L'808 et le kick se partagent le grave : sidechain ou choix","Mélodie filtrée (coupe des aigus) pour laisser la voix devant","Contrôler l'808 sur petits haut-parleurs (saturation légère pour les harmoniques)"],
+  errors:["808 pas dans la tonalité","Beat trop chargé, sans place pour le rappeur"],
+  refs:"Metro Boomin, Dr. Dre, J Dilla, Pi'erre Bourne, Kaytranada"},
+ film:{name:"Musique de film (symphonique)", specs:[["Tempo","Libre, suit l'image"],["Modes","Dorien, lydien, phrygien"],["Orchestre","BBC SO"],["Unité","La « cue » (scène)"]],
+  drums:["Timbales sur les temps forts et les crescendos","Grosses percussions (taikos, grosse caisse) pour l'épique, avec parcimonie","Cymbales suspendues en roulement pour les montées"],
+  bass:["Contrebasses + violoncelles en octaves pour la fondation","Pédales tenues pour créer la tension"],
+  harmony:["i–VI–III–VII (épique), médiantes chromatiques (magie), mode lydien (merveilleux)","Voicings ouverts, quintes dans le grave","Leitmotivs qui reviennent transformés"],
+  chain:["BBC SO (une voie par pupitre)","Vital (pads et drones hybrides)","Fruity Parametric EQ 2 léger","Une reverb commune (Fruity Convolver ou Reeverb 2)","Fruity Limiter très doux sur le Master"],
+  mix:["L'équilibre se fait d'abord à l'écriture (nuances CC1), pas au fader","Mic Mix ou Tree pour un son naturel ; Close pour plus de précision","Ne pas compresser l'orchestre comme une pop : garder la dynamique"],
+  errors:["Tout jouer en accords plaqués sur un patch d'ensemble","Notes sans mouvement de CC1 : l'orchestre sonne comme un orgue","Écrire en dehors des tessitures"],
+  refs:"John Williams, Hans Zimmer, Howard Shore, Alexandre Desplat, Ludwig Göransson, Joe Hisaishi"}
+};
+function renderGenres(){
+  const keys = genre==="all" ? Object.keys(GENRES) : [genre];
+  const li = a => `<ul>${a.map(x=>`<li>${x}</li>`).join("")}</ul>`;
+  document.getElementById("v-genres").innerHTML = `<div><h2>Fiches genre</h2><p class="lede">Les codes de chaque style : tempo, batterie, basse, harmonie, chaîne de plugins et pièges classiques. Choisis un style en haut pour l'isoler.</p></div>
+  <div class="genre-grid">${keys.map(k=>{const g=GENRES[k]; return `<article class="card g-${k}">
+    <div class="card-head"><h3>${g.name}</h3><span class="tag g-${k}">${GN[k]}</span></div>
+    <dl class="specs">${g.specs.map(s=>`<div class="spec"><dt>${s[0]}</dt><dd>${s[1]}</dd></div>`).join("")}</dl>
+    <div class="block"><h4>${k==="film"?"Percussions":"Batterie"}</h4>${li(g.drums)}</div>
+    <div class="block"><h4>Basse / fondation</h4>${li(g.bass)}</div>
+    <div class="block"><h4>Harmonie et mélodie</h4>${li(g.harmony)}</div>
+    <div class="block"><h4>Chaîne de plugins conseillée</h4><div class="chain">${g.chain.map(c=>`<span>${c}</span>`).join("<em>›</em>")}</div></div>
+    <div class="block"><h4>Mixage</h4>${li(g.mix)}</div>
+    <div class="block"><h4>Erreurs fréquentes</h4>${li(g.errors)}</div>
+    <div class="block"><h4>À écouter et analyser</h4><p>${g.refs}</p></div>
+  </article>`}).join("")}</div>`;
+}
+
+/* ---------- MODÈLES ---------- */
+const MODELS = [
+ {id:"m1",g:"house",t:"Groove deep house 124",lvl:"Débutant",time:"1 h",goal:"Sentir le swing et la pompe du sidechain.",steps:[
+  "Tempo 124. Kick sur 1-5-9-13, clap sur 5 et 13, open hat sur 3-7-11-15.",
+  "Shaker en doubles croches, vélocités alternées fort/faible, Swing du Channel Rack à 35 %.",
+  "Vital : recette « Stab house ». Joue Am7 – Fmaj7 – Dm7 – Em7 (onglet Atelier) en accords courts sur le contretemps.",
+  "Basse ronde : notes fondamentales sur les contretemps, une octave sous les accords.",
+  "Sidechain du kick vers la basse et les accords (Fruity Limiter COMP, release ≈ 150 ms).",
+  "Arrange 64 mesures : 16 intro (beat), 16 + accords, 16 + basse et percu, 16 break sans kick."]},
+ {id:"m2",g:"electro",t:"Build-up et drop 128",lvl:"Intermédiaire",time:"2 h",goal:"Maîtriser la tension et la libération.",steps:[
+  "Tempo 128, La mineur. Progression Am – F – C – G.",
+  "Build de 8 mesures : snare en noires (2 mes.), croches (2), doubles (2), triples croches (2), avec pitch qui monte.",
+  "Riser : Vital, oscillateur de bruit, filtre passe-bas automatisé qui s'ouvre sur 8 mesures.",
+  "Dernière mesure du build : coupe le kick, filtre passe-haut sur tout, un temps de silence avant le drop.",
+  "Drop : lead supersaw (recette Vital) en accords + mélodie, basse à l'octave, kick 4/4, sidechain fort.",
+  "Compare le volume perçu build vs drop : le drop doit claquer plus fort."]},
+ {id:"m3",g:"rap",t:"Trap sombre 140",lvl:"Débutant",time:"1 h 30",goal:"808 accordée, rolls de hats, espace pour la voix.",steps:[
+  "Tempo 140, Do mineur. Mélodie de piano ou pluck sur Cm – A♭ – Fm – G (mineur harmonique).",
+  "Snare/clap sur le temps 3 de chaque mesure (demi-temps).",
+  "Hats en croches, puis ajoute des rolls en 1/16 et en triolets à la fin des mesures 2 et 4.",
+  "808 : recette Vital (ou sample 808 dans un Sampler). Suis les fondamentales, glisse vers la note suivante en fin de mesure.",
+  "Saturation légère de l'808 (Fruity Blood Overdrive) pour l'entendre sur téléphone.",
+  "Filtre les aigus de la mélodie pendant les couplets, ouvre-la au refrain."]},
+ {id:"m4",g:"rap",t:"Boom-bap à partir d'un sample",lvl:"Intermédiaire",time:"2 h",goal:"Découper et recomposer un sample.",steps:[
+  "Tempo 90. Enregistre toi-même 4 accords au clavier (piano FL Keys + vinyle avec un filtre) et exporte-les, pour avoir un sample libre de droits.",
+  "Charge le sample dans Slicex, découpe sur les transitoires.",
+  "Rejoue les tranches au clavier dans un nouvel ordre ; enregistre et quantifie à 50 %.",
+  "Batterie : kick et snare samplés, swing 55–60 %, ghost notes de snare à faible vélocité.",
+  "Compresse le bus batterie (Fruity Compressor, attaque lente) pour le punch.",
+  "Ajoute une basse simple qui suit le sample."]},
+ {id:"m5",g:"film",t:"Ostinato épique",lvl:"Intermédiaire",time:"2 h",goal:"Moteur rythmique + thème de cuivres + crescendo.",steps:[
+  "Tempo 120, Ré mineur. Progression Dm – B♭ – F – C, 2 mesures par accord.",
+  "Altos et violoncelles en spiccato : doubles croches avec accents en 3+3+2.",
+  "Contrebasses longues sur les fondamentales, octave grave.",
+  "Cors en Legato : un thème de 4 mesures dans le médium, CC1 qui monte dans chaque phrase.",
+  "Trombones et tuba en renfort sur la reprise, timbales sur le 1er temps de chaque accord.",
+  "Crescendo global sur 16 mesures : dessine CC1 de 40 à 120 sur tous les pupitres."]},
+ {id:"m6",g:"film",t:"Thème lyrique pour cordes",lvl:"Intermédiaire",time:"2 h",goal:"Faire chanter l'orchestre.",steps:[
+  "Fa majeur, tempo 70. Écris une mélodie de 8 mesures au clavier (joue-la, ne la dessine pas).",
+  "Violons 1 en Legato pour la mélodie ; violons 2 et altos en accords tenus (Longs).",
+  "Violoncelles en contre-chant lent, contrebasses sur les fondamentales.",
+  "Dessine CC1 pour chaque phrase : monter vers la note la plus haute, redescendre à la fin.",
+  "2e passage : mélodie aux violoncelles une octave plus bas, violons en harmonie au-dessus.",
+  "3e passage : tutti avec cors à l'unisson des violoncelles et harpe en arpèges (selon ta version)."]},
+ {id:"m7",g:"film",t:"Suspense phrygien",lvl:"Avancé",time:"2 h",goal:"Créer la tension sans mélodie évidente.",steps:[
+  "Do mineur phrygien, tempo 100. Alterne Cm et D♭ toutes les 2 mesures.",
+  "Contrebasses et violoncelles : pédale de Do tenue, CC1 qui ondule lentement.",
+  "Pulsation de croches à la harpe, au piano ou en pizzicato, très douce.",
+  "Vital : recette « Drone hybride » sous l'orchestre, très bas dans le mix.",
+  "Violons en notes aiguës tenues, dissonance d'un demi-ton entre violons 1 et 2.",
+  "Un « hit » final : tutti + percussions graves, puis silence."]},
+ {id:"m8",g:"film",t:"Émerveillement lydien",lvl:"Intermédiaire",time:"1 h 30",goal:"Utiliser les modes et les médiantes.",steps:[
+  "Alterne C et D/C (Ré majeur sur basse de Do) : c'est le son lydien.",
+  "Flûte en mélodie qui insiste sur le Fa♯ (la note lydienne).",
+  "Cordes aiguës en trémolo (ou Longs doux), CC1 bas.",
+  "Section B : enchaîne C – E – A♭ – C (médiantes chromatiques) au tutti.",
+  "Glockenspiel ou célesta (selon ta version) qui double la mélodie une octave au-dessus."]},
+ {id:"m9",g:"film",t:"Rescoring d'une scène",lvl:"Avancé",time:"1 semaine",goal:"Travailler comme un vrai compositeur de film.",steps:[
+  "Choisis une scène de 1 à 2 minutes (court-métrage, bande-annonce) et coupe son audio.",
+  "Fruity Video Player 2 : charge la vidéo, vérifie la synchro.",
+  "Spotting : liste les timecodes des coupes et émotions, place un marqueur sur chacun.",
+  "Choisis le tempo pour que les moments clés tombent sur des temps forts (automation de tempo si besoin).",
+  "Compose par blocs entre les marqueurs, en gardant un thème principal.",
+  "Exporte la vidéo avec ta musique pour ton portfolio (usage personnel, droits de l'image à vérifier avant publication)."]},
+ {id:"m10",g:"all",t:"Refaire à l'oreille",lvl:"Tous niveaux",time:"1 h / semaine",goal:"Entraîner l'oreille, le meilleur exercice qui existe.",steps:[
+  "Choisis 30 secondes d'un morceau que tu aimes et glisse-le dans la Playlist (clip audio).",
+  "Trouve le tempo avec le tap tempo du Studio remake, et la tonalité au clavier.",
+  "Refais la batterie, puis la basse, puis les accords, puis la mélodie.",
+  "Compare en alternant ta version et l'original au même volume.",
+  "Garde ce travail pour toi : c'est un exercice d'apprentissage, pas à publier."]}
+];
+let doneModels = store.get("models",{});
+function renderModeles(){
+  const list = MODELS.filter(m=>fits([m.g]));
+  document.getElementById("v-modeles").innerHTML = `<div><h2>Modèles à refaire</h2><p class="lede">Des exercices guidés, du plus simple au plus avancé. Fais-les dans FL avec ton clavier, puis marque-les comme faits. Les progressions citées sont jouables dans l'onglet Atelier.</p></div>
+  <div class="model-list">${list.map(m=>`<article class="model g-${m.g}">
+    <div class="meta"><span class="tag g-${m.g}">${GN[m.g]}</span><span>${m.lvl}</span><span>⏱ ${m.time}</span></div>
+    <h3>${m.t}</h3><p class="goal"><b>Objectif :</b> ${m.goal}</p>
+    <ol>${m.steps.map(s=>`<li>${s}</li>`).join("")}</ol>
+    <button class="done-btn" data-id="${m.id}" aria-pressed="${!!doneModels[m.id]}">${doneModels[m.id]?"✓ Fait":"Marquer comme fait"}</button>
+  </article>`).join("")}</div>`;
+  document.querySelectorAll(".done-btn").forEach(b=>b.addEventListener("click",()=>{ doneModels[b.dataset.id]=!doneModels[b.dataset.id]; store.set("models",doneModels); renderModeles(); }));
+}
+
+/* ---------- OUTILS ---------- */
+const VITAL = [
+ {g:["electro"],t:"Supersaw",p:"OSC 1 : wavetable Basic Shapes position scie. Unisson 7–9 voix, Detune ≈ 30–40 %, Stereo 100 %. Filtre passe-bas ouvert. Ampli : Attack 0, Release ≈ 0,3 s. Effets : Chorus léger, Reverb 20 %."},
+ {g:["house","electro"],t:"Stab house",p:"OSC 1 scie + OSC 2 carré une octave plus haut. Filtre passe-bas ≈ 1,5 kHz avec ENV 2 (decay court) sur la coupure. Ampli : Decay ≈ 0,25 s, Sustain 0. Joue des accords m7 courts ; delay synchro 1/8 pointée."},
+ {g:["all"],t:"Pluck",p:"OSC 1 scie ou triangle. Ampli : Attack 0, Decay ≈ 0,3 s, Sustain 0, Release 0,2 s. Filtre passe-bas modulé par ENV 2 (decay très court). Reverb + delay pour l'espace. Idéal mélodies rap et house."},
+ {g:["electro","rap"],t:"Reese bass",p:"OSC 1 et OSC 2 en scie, l'un désaccordé de +10 à +20 cents. Filtre passe-bas ≈ 400–800 Hz avec LFO lente sur la coupure. Mono sous 150 Hz. Distorsion légère."},
+ {g:["rap"],t:"808",p:"OSC 1 sinus (ou wavetable Basic Shapes position sinus), Voice : Legato activé + Glide ≈ 80–150 ms. ENV pitch court au début pour le « clic ». Ampli : Decay long. Effet Distortion (Soft clip) pour les harmoniques. Joue en mono."},
+ {g:["film","house"],t:"Pad atmosphérique",p:"2 oscillateurs riches désaccordés, Attack ≈ 1–2 s, Release ≈ 3 s. LFO très lente sur la position de wavetable et la coupure. Chorus + Reverb large. Coupe les graves (EQ) pour laisser la place à l'orchestre."},
+ {g:["film"],t:"Drone hybride",p:"OSC 1 note grave tenue + SMP (bruit) filtré. Filtre en Comb ou passe-bande, LFO de plusieurs secondes sur la coupure. Distortion légère, Reverb 60 %. Sous l'orchestre, à −15 dB."}
+];
+const BBC = [
+ ["Molette (CC1)","Dynamique : passe des nuances piano à forte sur les notes longues. Toujours en mouvement."],
+ ["CC11","Expression : volume global du pupitre, pour les fondus."],
+ ["Vélocité","Force des notes courtes (spiccato, staccato, pizz) ; sur certaines articulations longues, elle joue sur l'attaque."],
+ ["Articulations","Change-les avec les keyswitches (notes graves en rouge sur le clavier du plugin) ou mieux, une voie FL par articulation pour un projet lisible."],
+ ["Micros","Mix : bon point de départ. Tree / Ambient : plus de salle. Close : plus de précision (Core / Pro)."],
+ ["Legato","Les transitions legato ont une attaque lente : avance légèrement les notes ou joue-les un peu en avance au clavier."],
+ ["CPU / RAM","Purge les échantillons non joués et augmente le buffer audio quand l'orchestre grossit."]
+];
+const RANGES = [
+ ["Violons","G3 – E7","G4 – E8","Mélodie, aigus brillants"],
+ ["Altos","C3 – E6","C4 – E7","Remplissage, ostinatos"],
+ ["Violoncelles","C2 – A5","C3 – A6","Chant grave, basse"],
+ ["Contrebasses","E1 – G3","E2 – G4","Fondation (sonne à l'octave inf.)"],
+ ["Flûte","C4 – C7","C5 – C8","Mélodie aérienne"],
+ ["Hautbois","B♭3 – G6","B♭4 – G7","Solo expressif, pastoral"],
+ ["Clarinette (son réel)","D3 – B♭6","D4 – B♭7","Couleur douce, agilité"],
+ ["Basson","B♭1 – E5","B♭2 – E6","Basse des bois, humour"],
+ ["Cors","F2 – C5","F3 – C6","Héroïque, chaleureux (confort)"],
+ ["Trompettes","E3 – C6","E4 – C7","Fanfare, éclat"],
+ ["Trombones","E2 – B♭4","E3 – B♭5","Puissance, choral"],
+ ["Tuba","D1 – F4","D2 – F5","Basse des cuivres"]
+];
+const FLNAT = [
+ ["Sytrus","Synthé FM/additif : cloches, basses, pads, e-pianos"],["FLEX","Lecteur de presets prêts à jouer"],["FL Keys","Pianos simples et légers"],
+ ["FPC","Pads de batterie, à jouer au clavier MIDI"],["Slicex","Découpe de samples et de boucles"],["Edison","Enregistrement et édition audio"],
+ ["Fruity Parametric EQ 2","EQ de référence, avec analyseur"],["Fruity Compressor / Limiter","Compression, sidechain, limitation"],["Maximus","Compression multibande et master"],
+ ["Fruity Reeverb 2 / Convolver","Reverbs algorithmique et à convolution"],["Fruity Delay 3","Delay synchro tempo, saturation, filtres"],["Fruity Video Player 2","Vidéo synchronisée pour la musique à l'image"]
+];
+let toolTab = store.get("toolTab","vital");
+function renderOutils(){
+  const vit = VITAL.filter(v=>fits(v.g));
+  const tabs = {vital:"Vital", bbc:"BBC Symphony Orchestra", fl:"Plugins FL Producer", midi:"Clavier MIDI"};
+  let body="";
+  if(toolTab==="vital") body = `<div class="card"><p class="lede">Vital est un synthé à tables d'ondes (wavetable). Le principe à retenir : tout se module en glissant une LFO ou une enveloppe sur un bouton. Pars d'un preset « Init » et refais ces recettes ; les valeurs sont des points de départ, ajuste à l'oreille.</p></div>
+    <div class="two">${vit.map(v=>`<div class="card recipe g-${v.g[0]}"><div>${tagHtml(v.g)}</div><h4>${v.t}</h4><p>${v.p}</p></div>`).join("")}</div>
+    <div class="tip"><b>Presets :</b> commence par la banque d'usine de Vital, ouvre un preset proche de ce que tu veux et regarde comment il est construit (oscillateurs, modulations). Sauvegarde tes versions dans un dossier à ton nom.</div>`;
+  if(toolTab==="bbc") body = `<div class="two"><div class="card g-film"><h3>Contrôles essentiels</h3><div class="tbl-wrap"><table><tbody>${BBC.map(r=>`<tr><th scope="row">${r[0]}</th><td>${r[1]}</td></tr>`).join("")}</tbody></table></div></div>
+    <div class="card g-film"><h3>Quelle articulation pour quoi</h3><div class="tbl-wrap"><table><thead><tr><th>Articulation</th><th>Usage</th></tr></thead><tbody>
+    <tr><td>Legato</td><td>Mélodies et thèmes</td></tr><tr><td>Long</td><td>Accords tenus, nappes</td></tr><tr><td>Spiccato</td><td>Ostinatos rapides et rythmiques</td></tr>
+    <tr><td>Staccato / Marcato</td><td>Notes courtes accentuées, cuivres percussifs</td></tr><tr><td>Pizzicato</td><td>Légèreté, humour, suspense</td></tr><tr><td>Tremolo</td><td>Tension, frémissement, mystère</td></tr>
+    <tr><td>Con sordino</td><td>Cordes voilées, intimes (Core / Pro)</td></tr></tbody></table></div></div></div>
+    <div class="card g-film"><h3>Tessitures confortables</h3><p class="lede">Notes en son réel. La colonne FL suit la convention de FL (Do central = C5). Reste au milieu de ces plages pour un son naturel.</p>
+    <div class="tbl-wrap"><table><thead><tr><th>Instrument</th><th>Notation standard</th><th>Dans FL</th><th>Rôle</th></tr></thead><tbody>${RANGES.map(r=>`<tr><td>${r[0]}</td><td class="mono">${r[1]}</td><td class="mono">${r[2]}</td><td>${r[3]}</td></tr>`).join("")}</tbody></table></div></div>
+    <div class="tip"><b>Ordre de la partition :</b> bois (flûtes, hautbois, clarinettes, bassons) › cuivres (cors, trompettes, trombones, tuba) › percussions › harpe, claviers › cordes (violons 1, violons 2, altos, violoncelles, contrebasses). Range ton Channel Rack dans cet ordre.</div>`;
+  if(toolTab==="fl") body = `<div class="card"><p class="lede">Ce que ta Producer Edition apporte en plus de la Fruity : enregistrement audio, clips audio dans la Playlist, Edison, Sytrus, Maximus. La liste exacte dépend de ta version : vérifie dans le Plugin database (Browser).</p>
+    <div class="tbl-wrap"><table><thead><tr><th>Plugin</th><th>À quoi il sert</th></tr></thead><tbody>${FLNAT.map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td></tr>`).join("")}</tbody></table></div></div>`;
+  if(toolTab==="midi") body = `<div class="two"><div class="card"><h3>Brancher et configurer</h3><ol>
+    <li>Branche le clavier en USB avant d'ouvrir FL.</li><li>Options › MIDI settings : sélectionne le clavier dans Input, clique <b>Enable</b>.</li>
+    <li>Controller type : le modèle de ton clavier s'il est listé, sinon « generic controller ».</li><li>Joue : le canal sélectionné du Channel Rack sonne.</li>
+    <li>Pas de son ? Vérifie que la case « Enable » est cochée et que le canal n'est pas muté.</li></ol></div>
+    <div class="card"><h3>L'utiliser vraiment</h3><ul>
+    <li><b>Composer en jouant :</b> joue tes mélodies au clavier plutôt que de les dessiner, c'est plus musical.</li>
+    <li><b>Molette (CC1) :</b> indispensable pour BBC SO. Enregistre-la en même temps que les notes, ou dans une 2e passe.</li>
+    <li><b>Potards :</b> clic droit › Link to controller sur le cutoff de Vital, le volume d'une piste, une reverb.</li>
+    <li><b>Pads :</b> si ton clavier en a, joue la batterie avec FPC.</li>
+    <li><b>Score log :</b> Tools › Dump score log to selected pattern récupère ce que tu as improvisé sans enregistrer.</li>
+    <li><b>Quantifier avec goût :</b> pas à 100 % pour l'orchestre, sinon ça sonne mécanique.</li></ul></div></div>`;
+  document.getElementById("v-outils").innerHTML = `<div><h2>Plugins &amp; presets</h2><p class="lede">Recettes de sons pour Vital, mode d'emploi de BBC Symphony Orchestra, plugins natifs de FL et clavier MIDI. Les recettes Vital suivent le filtre de style.</p></div>
+    <div class="sub" role="group" aria-label="Outil">${Object.entries(tabs).map(([k,v])=>`<button data-t="${k}" aria-pressed="${k===toolTab}">${v}</button>`).join("")}</div>${body}`;
+  document.querySelectorAll("#v-outils .sub button").forEach(b=>b.addEventListener("click",()=>{toolTab=b.dataset.t;store.set("toolTab",toolTab);renderOutils();}));
+}
+
+/* ---------- ATELIER ---------- */
+// bass = note MIDI, notes = voicing ; MIDI 60 = Do central (C5 dans FL)
+const PROGS = [
+ {g:"house",n:"Deep house",k:"La mineur · m7",bpm:122,flats:false,ch:[["Am7",45,[57,60,64,67]],["Fmaj7",41,[57,60,64,65]],["Dm7",38,[57,60,62,65]],["Em7",40,[55,59,62,64]]]},
+ {g:"electro",n:"Hymne EDM vi–IV–I–V",k:"Do majeur / La mineur",bpm:128,flats:false,ch:[["Am",45,[57,60,64]],["F",41,[57,60,65]],["C",48,[55,60,64]],["G",43,[55,59,62]]]},
+ {g:"rap",n:"Trap sombre",k:"Do mineur harmonique",bpm:140,flats:true,ch:[["Cm",36,[60,63,67]],["A♭",44,[60,63,68]],["Fm",41,[60,65,68]],["G",43,[59,62,67]]]},
+ {g:"film",n:"Épique i–VI–III–VII",k:"Ré mineur",bpm:90,flats:true,ch:[["Dm",38,[57,62,65]],["B♭",34,[58,62,65]],["F",41,[57,60,65]],["C",36,[55,60,64]]]},
+ {g:"film",n:"Médiantes chromatiques",k:"Magie, émerveillement",bpm:72,flats:true,ch:[["C",36,[60,64,67]],["E",40,[59,64,68],false],["A♭",44,[60,63,68]],["C",36,[60,64,67]]]},
+ {g:"film",n:"Lydien",k:"Do lydien · espace",bpm:72,flats:false,ch:[["C",36,[60,64,67]],["D/C",36,[62,66,69]],["C",36,[60,64,67]],["D/C",36,[62,66,69]]]},
+ {g:"film",n:"Suspense phrygien",k:"Do phrygien",bpm:80,flats:true,ch:[["Cm",36,[60,63,67]],["D♭",37,[61,65,68]],["Cm",36,[60,63,67]],["D♭",37,[61,65,68]]]}
+];
+const SH=["C","C♯","D","D♯","E","F","F♯","G","G♯","A","A♯","B"], FLT=["C","D♭","D","E♭","E","F","G♭","G","A♭","A","B♭","B"];
+const nn = (m,fl)=>(fl?FLT:SH)[m%12]+(Math.floor(m/12)); // octave FL : 60 → C5
+let progI = 0, ctx=null, playing=null;
+function stopPlay(){ if(playing){ playing.timers.forEach(clearTimeout); playing.nodes.forEach(n=>{try{n.stop()}catch(e){}}); playing=null; } document.querySelectorAll(".chord").forEach(c=>c.classList.remove("on")); const b=document.getElementById("play"); if(b) b.textContent="▶ Écouter"; }
+function voice(freq,t0,dur,gainV,out,nodes){
+  const g=ctx.createGain(); g.gain.setValueAtTime(0,t0); g.gain.linearRampToValueAtTime(gainV,t0+0.04); g.gain.setTargetAtTime(gainV*0.6,t0+0.1,0.4); g.gain.setTargetAtTime(0,t0+dur-0.05,0.08); g.connect(out);
+  [["sawtooth",-6],["triangle",5]].forEach(([type,det])=>{const o=ctx.createOscillator(); o.type=type; o.frequency.value=freq; o.detune.value=det; o.connect(g); o.start(t0); o.stop(t0+dur+0.4); nodes.push(o);});
+}
+function play(){
+  if(playing){ stopPlay(); return; }
+  try{ ctx = ctx || new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return; }
+  ctx.resume();
+  const p=PROGS[progI], bpm=Math.max(40,Math.min(200,+document.getElementById("bpm").value||p.bpm)), bar=240/bpm, loops=2;
+  const out=ctx.createBiquadFilter(); out.type="lowpass"; out.frequency.value=1800; const master=ctx.createGain(); master.gain.value=0.5; out.connect(master); master.connect(ctx.destination);
+  const nodes=[], timers=[], t0=ctx.currentTime+0.05;
+  for(let l=0;l<loops;l++) p.ch.forEach((c,i)=>{ const t=t0+(l*4+i)*bar;
+    c[2].forEach(m=>voice(440*Math.pow(2,(m-69)/12),t,bar,0.09,out,nodes)); voice(440*Math.pow(2,(c[1]-69)/12),t,bar,0.14,out,nodes);
+    timers.push(setTimeout(()=>{document.querySelectorAll(".chord").forEach((el,j)=>el.classList.toggle("on",j===i));},(t-ctx.currentTime)*1000)); });
+  timers.push(setTimeout(stopPlay,(loops*4*bar+0.3)*1000));
+  playing={nodes,timers}; document.getElementById("play").textContent="■ Stop";
+}
+function calc(){
+  const b=+document.getElementById("cbpm").value||120, q=60000/b, el=document.getElementById("calc-out");
+  const rows=[["Ronde (1 mesure)",q*4],["Blanche 1/2",q*2],["Noire 1/4",q],["Croche pointée 1/8.",q*0.75],["Croche 1/8",q/2],["Triolet de noires 1/4T",q*2/3],["Double croche 1/16",q/4]];
+  const bars=+document.getElementById("cbars").value||8;
+  el.innerHTML=`<table><thead><tr><th>Valeur</th><th>Durée</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${r[0]}</td><td class="mono">${r[1].toFixed(1)} ms</td></tr>`).join("")}
+   <tr><td><b>${bars} mesures en 4/4</b></td><td class="mono"><b>${(bars*4*q/1000).toFixed(2)} s</b></td></tr></tbody></table>`;
+}
+function renderAtelier(){
+  const list = PROGS.map((p,i)=>({p,i})).filter(x=>fits([x.p.g]));
+  if(!list.some(x=>x.i===progI)) progI = list[0].i;
+  const p=PROGS[progI];
+  document.getElementById("v-atelier").innerHTML = `<div><h2>Atelier</h2><p class="lede">Écoute les progressions des modèles, puis rejoue-les sur ton clavier MIDI avec les notes indiquées (convention FL, Do central = C5). Le son ici est un simple synthé de démonstration : le vrai son viendra de Vital ou BBC SO.</p></div>
+  <div class="two">
+   <div class="card"><h3>Progressions d'accords</h3><div class="prog-list">${list.map(x=>`<button class="prog g-${x.p.g}" data-i="${x.i}" aria-pressed="${x.i===progI}"><span><b>${x.p.n}</b><small>${x.p.k}</small></span><span class="tag g-${x.p.g}">${GN[x.p.g]}</span></button>`).join("")}</div></div>
+   <div class="card g-${p.g}"><h3>${p.n}</h3>
+    <div class="chords">${p.ch.map(c=>{const fl=c[3]??p.flats; return `<div class="chord"><b>${c[0]}</b><span>basse ${nn(c[1],fl)}</span><br><span>${c[2].map(m=>nn(m,fl)).join(" ")}</span></div>`;}).join("")}</div>
+    <div class="controls"><button class="btn" id="play">▶ Écouter</button><label class="inl" for="bpm">Tempo <input type="number" id="bpm" min="40" max="200" value="${p.bpm}"></label><button class="btn ghost" id="at-midi">⬇ Exporter en MIDI</button><span class="count" id="at-midi-st">1 mesure par accord</span></div>
+    <div class="tip"><b>Exercice :</b> joue la basse main gauche et l'accord main droite. Puis invente une mélodie par-dessus en restant dans la gamme : ${p.k}.</div>
+   </div>
+  </div>
+  <div class="card"><h3>Calculateur de tempo</h3><p class="lede">Durées en millisecondes pour régler un delay, le pre-delay d'une reverb ou le release d'un sidechain, et la durée en secondes d'un passage (utile pour caler une musique sur une scène).</p>
+   <div class="controls"><label class="inl" for="cbpm">BPM <input type="number" id="cbpm" min="20" max="300" value="${p.bpm}"></label><label class="inl" for="cbars">Mesures <input type="number" id="cbars" min="1" max="512" value="8"></label></div>
+   <div class="tbl-wrap" id="calc-out"></div></div>`;
+  document.querySelectorAll(".prog").forEach(b=>b.addEventListener("click",()=>{stopPlay();progI=+b.dataset.i;renderAtelier();}));
+  document.getElementById("play").addEventListener("click",play);
+  document.getElementById("at-midi").addEventListener("click",async()=>{ document.getElementById("at-midi-st").textContent =
+    await saveMidi(p.n.replace(/[^\w\- ]+/g,"").trim()||"progression", midiFile(p.ch.map(c=>({bass:c[1],notes:c[2]})), +document.getElementById("bpm").value||p.bpm)); });
+  ["cbpm","cbars"].forEach(id=>document.getElementById(id).addEventListener("input",calc)); calc();
+}
+
+/* ---------- RAPPEL ---------- */
+const KEYS = [
+ ["Général",[["Espace","Lecture / stop"],["L","Bascule mode Pattern / Song"],["Ctrl+S","Enregistrer le projet"],["Ctrl+N","Enregistrer une nouvelle version"],["F2","Renommer / colorer l'élément sélectionné"],["F5","Playlist"],["F6","Channel Rack"],["F7","Piano Roll"],["F9","Mixer"],["Alt+F8","Browser"],["F8","Plugin picker"],["F10","Réglages (audio, MIDI…)"],["Ctrl+T","Clavier de l'ordinateur → piano"]]],
+ ["Piano Roll",[["Clic gauche / droit","Poser / effacer une note"],["Ctrl+A","Tout sélectionner"],["Ctrl+B","Dupliquer la sélection à la suite"],["Ctrl+Q","Quantification rapide"],["Alt + glisser","Déplacer sans aimantation à la grille"]]],
+ ["Mixer & export",[["Ctrl+L","Router le canal sélectionné vers la piste de mixer sélectionnée"],["Ctrl+R","Exporter en WAV"],["Ctrl+Shift+R","Exporter en MP3"]]]
+];
+function renderRappel(){
+  document.getElementById("v-rappel").innerHTML = `<div><h2>Rappel FL Studio</h2><p class="lede">Les raccourcis à avoir sous les doigts. Si un raccourci ne répond pas, vérifie quelle fenêtre est active : ils changent selon la fenêtre.</p></div>
+  <div class="two">${KEYS.map(([t,rows])=>`<div class="card"><h3>${t}</h3><div class="tbl-wrap"><table><tbody>${rows.map(r=>`<tr><td class="mono">${r[0].split(" ").map(k=>/^[A-Za-z0-9+]+$/.test(k)?`<kbd>${k}</kbd>`:k).join(" ")}</td><td>${r[1]}</td></tr>`).join("")}</tbody></table></div></div>`).join("")}
+  <div class="card"><h3>Le flux d'un morceau</h3><ol><li>Idée au clavier (enregistrée, ou récupérée avec le score log).</li><li>Boucle de 8 mesures : batterie, basse, accords, mélodie.</li><li>Arrangement dans la Playlist en mode Song.</li><li>Routage au mixer (Ctrl+L), EQ, envois de reverb.</li><li>Automations et transitions.</li><li>Master, export, écoute sur 3 systèmes.</li></ol></div></div>`;
+}
+
+/* ---------- BOÎTE À OUTILS ---------- */
+// p : free = gratuit, cheap = petit prix / freemium, paid = payant mais vaut une promo
+const TOOLS = [
+ {cat:"Instruments & orchestre", items:[
+  {n:"Spitfire LABS",p:"free",g:["film","all"],u:"https://labs.spitfireaudio.com",d:"Des dizaines d'instruments gratuits (pianos feutrés, cordes, choeurs, textures). Parfait en complément de BBC SO pour l'émotion et l'ambient."},
+  {n:"Orchestral Tools Layers",p:"free",g:["film"],u:"https://www.orchestraltools.com",d:"Orchestre complet par sections, pensé pour esquisser vite. Se joue dans le lecteur gratuit SINE Player."},
+  {n:"Decent Sampler + Pianobook",p:"free",g:["film","all"],u:"https://www.pianobook.co.uk",d:"Lecteur gratuit et des centaines d'instruments enregistrés par la communauté : pianos, instruments rares, sons cinématiques."},
+  {n:"Komplete Start",p:"free",g:["all"],u:"https://www.native-instruments.com",d:"Pack gratuit de Native Instruments avec Kontakt Player (lecteur indispensable pour beaucoup de banques de sons)."},
+  {n:"Spitfire Originals",p:"cheap",g:["film"],u:"https://www.spitfireaudio.com",d:"Banques orchestrales à petit prix (cordes intimes, cuivres épiques, percussions). Très bon rapport qualité-prix, souvent en promo."},
+  {n:"MuseScore 4 + Muse Sounds",p:"free",g:["film"],u:"https://musescore.org",d:"Logiciel de partition gratuit avec des sons d'orchestre réalistes. Idéal pour apprendre l'orchestration en lisant et écrivant des partitions."}
+ ]},
+ {cat:"Synthés", items:[
+  {n:"Surge XT",p:"free",g:["electro","house"],u:"https://surge-synthesizer.github.io",d:"Synthé open source très complet, énormément de presets. Le meilleur complément gratuit à Vital."},
+  {n:"Dexed",p:"free",g:["house","rap"],u:"https://asb2m10.github.io/dexed/",d:"Émulation du Yamaha DX7 : e-pianos, basses FM et cloches des années 80, très utilisés en house et lo-fi."},
+  {n:"u-he Tyrell N6",p:"free",g:["electro","house"],u:"https://u-he.com",d:"Synthé analogique simple et chaleureux : basses, leads, pads rétro. Parfait pour apprendre la synthèse soustractive."},
+  {n:"Sitala",p:"free",g:["rap","house"],u:"https://decomposer.de/sitala/",d:"Échantillonneur de batterie à 16 pads, ultra simple. Glisse tes sons, joue-les au clavier ou aux pads."}
+ ]},
+ {cat:"Effets & mixage", items:[
+  {n:"Valhalla Supermassive",p:"free",g:["all"],u:"https://valhalladsp.com",d:"Reverb et delay géants, spatiaux. Incontournable pour les pads, le film et l'électro."},
+  {n:"ValhallaVintageVerb / Room",p:"cheap",g:["all","film"],u:"https://valhalladsp.com",d:"Reverbs de référence à petit prix. Room est excellente pour placer un orchestre dans une salle crédible."},
+  {n:"TDR Nova",p:"free",g:["all"],u:"https://www.tokyodawn.net",d:"EQ dynamique gratuit : calme une fréquence seulement quand elle dépasse (sifflantes, résonances, conflits kick/basse)."},
+  {n:"TDR Kotelnikov",p:"free",g:["all"],u:"https://www.tokyodawn.net",d:"Compresseur transparent de qualité studio, idéal sur le bus de mix ou le master."},
+  {n:"Xfer OTT",p:"free",g:["electro","rap"],u:"https://xferrecords.com/freeware",d:"Compresseur multibande agressif, le son « moderne » des drops et des leads. À doser (souvent 20–40 %)."},
+  {n:"Kilohearts Essentials",p:"free",g:["electro","house","rap"],u:"https://kilohearts.com/products/kilohearts_essentials",d:"Une trentaine d'effets simples (chorus, distorsion, filtres, bitcrush) pratiques pour le sound design."},
+  {n:"MeldaProduction MFreeFxBundle",p:"free",g:["all"],u:"https://www.meldaproduction.com/MFreeFxBundle",d:"Énorme pack d'effets gratuits : analyseurs, EQ, modulation, utilitaires."},
+  {n:"Airwindows",p:"free",g:["all"],u:"https://www.airwindows.com",d:"Des centaines de petits effets gratuits (saturation de console, tape, dither). Interface minimaliste, son excellent."},
+  {n:"iZotope Ozone / Neutron Elements",p:"paid",g:["all"],u:"https://www.izotope.com",d:"Assistants de mastering et mixage. Les versions Elements sont très souvent bradées : attends une promo."}
+ ]},
+ {cat:"Mesure & écoute", items:[
+  {n:"Youlean Loudness Meter 2",p:"free",g:["all"],u:"https://youlean.co/youlean-loudness-meter/",d:"Mesure le volume perçu (LUFS) de ton master. Indispensable pour comparer à tes références et viser −14 LUFS en streaming."},
+  {n:"Voxengo SPAN",p:"free",g:["all"],u:"https://www.voxengo.com/product/span/",d:"Analyseur de spectre précis : vois où se battent ton kick et ta basse, ou ce qui manque par rapport à une référence."},
+  {n:"SoundGym",p:"cheap",g:["all"],u:"https://www.soundgym.co",d:"Jeux d'entraînement de l'oreille pour le mixage (fréquences, compression, volumes). Version gratuite limitée."}
+ ]},
+ {cat:"Sons & samples", items:[
+  {n:"Freesound",p:"free",g:["all","film"],u:"https://freesound.org",d:"Base de sons communautaire (bruitages, ambiances, field recording). Vérifie la licence de chaque son (CC0 = libre)."},
+  {n:"Splice",p:"cheap",g:["rap","house","electro"],u:"https://www.splice.com",d:"Abonnement de samples libres de droits, recherche par tonalité et tempo. Pratique mais pas obligatoire au début."},
+  {n:"Presets Vital de la communauté",p:"free",g:["electro","house","rap"],u:"https://vital.audio",d:"De nombreuses banques gratuites sont partagées par la communauté Vital. Étudie leurs modulations plutôt que de les empiler."}
+ ]},
+ {cat:"Apprendre", items:[
+  {n:"musictheory.net",p:"free",g:["all"],u:"https://www.musictheory.net",d:"Leçons et exercices de solfège et d'oreille gratuits, clairs et courts. 10 minutes par jour suffisent."},
+  {n:"Hooktheory",p:"cheap",g:["all"],u:"https://www.hooktheory.com",d:"Analyse des progressions d'accords de milliers de morceaux connus, pour comprendre pourquoi ça marche."},
+  {n:"Films libres Blender Studio",p:"free",g:["film"],u:"https://studio.blender.org/films/",d:"Courts-métrages d'animation sous licence libre (Creative Commons, crédit obligatoire). Parfaits pour rescorer une scène et la publier dans ton portfolio."},
+  {n:"Chaînes YouTube",p:"free",g:["all"],u:"",d:"Film : Orchestration Online, Guy Michelmore, Christian Henson. Production : In The Mix, Venus Theory (plugins gratuits), tutos FL Studio officiels d'Image-Line."}
+ ]}
+];
+const PLABEL={free:"Gratuit",cheap:"Petit prix",paid:"Promo conseillée"};
+let installed = store.get("installed",{}), priceF = store.get("priceF","all");
+function renderBoite(){
+  const cats = TOOLS.map(c=>({cat:c.cat, items:c.items.filter(t=>fits(t.g) && (priceF==="all"||t.p===priceF))})).filter(c=>c.items.length);
+  const pf = {all:"Tous les prix",free:"Gratuits",cheap:"Petit prix",paid:"Promo conseillée"};
+  document.getElementById("v-boite").innerHTML = `<div><h2>Boîte à outils</h2><p class="lede">Les plugins et ressources qui valent le détour en plus de FL, Vital et BBC SO, en priorité gratuits. Installe-les un par un et apprends-les avant d'en ajouter d'autres : trop de plugins tue la créativité. Prix et contenu des offres à vérifier sur le site de chaque éditeur.</p></div>
+   <div class="sub" role="group" aria-label="Prix">${Object.entries(pf).map(([k,v])=>`<button data-p="${k}" aria-pressed="${k===priceF}">${v}</button>`).join("")}</div>
+   ${cats.map(c=>`<div class="cat-title"><h3>${c.cat}</h3><span>${c.items.length} outil${c.items.length>1?"s":""}</span></div>
+   <div class="tool-list">${c.items.map(t=>{const id="i-"+t.n.replace(/\W+/g,"-"); return `<div class="tool"><div class="tool-head"><h4>${t.n}</h4><span class="price ${t.p}">${PLABEL[t.p]}</span></div>
+     <div>${tagHtml(t.g.filter(x=>x!=="all").length?t.g.filter(x=>x!=="all"):["all"])}</div><p>${t.d}</p>
+     <div class="tool-foot">${t.u?`<a href="${t.u}" target="_blank" rel="noopener">Site officiel ↗</a>`:"<span></span>"}<label class="inl" for="${id}"><input type="checkbox" id="${id}" ${installed[t.n]?"checked":""} data-n="${t.n}"> Installé</label></div></div>`}).join("")}</div>`).join("") || `<p class="lede">Aucun outil pour ce filtre.</p>`}
+   <div class="tip"><b>Installer un plugin dans FL :</b> installe la version VST3, puis Options › Manage plugins › Find plugins. Coche l'étoile ⭐ à côté du plugin pour qu'il apparaisse dans ton Plugin picker (F8).</div>`;
+  document.querySelectorAll("#v-boite .sub button").forEach(b=>b.addEventListener("click",()=>{priceF=b.dataset.p;store.set("priceF",priceF);renderBoite();}));
+  document.querySelectorAll("#v-boite input[data-n]").forEach(cb=>cb.addEventListener("change",()=>{installed[cb.dataset.n]=cb.checked;store.set("installed",installed);}));
+}
+
+/* ---------- ORGANISATION ---------- */
+const ORG = [
+ {t:"Tes dossiers sur le disque", g:"all", items:[
+  "Un dossier racine unique, par exemple <code>Musique/</code>, avec <code>Projets/</code>, <code>Samples/</code>, <code>Presets/</code>, <code>Exports/</code> et <code>Références/</code>.",
+  "Dans Projets : un sous-dossier par morceau (<code>2026-11 Trap sombre/</code>), avec le .flp, ses enregistrements et ses exports.",
+  "Un dossier <code>Esquisses/</code> pour les idées de 8 mesures, et <code>Finis/</code> pour ce qui est terminé : tu vois tout de suite ce qui reste à finir.",
+  "Samples triés par type (<code>Kicks, Snares, Hats, 808, Percs, FX, Boucles, Voix</code>) et non par pack : tu trouves plus vite.",
+  "Sauvegarde cloud ou disque externe du dossier racine chaque semaine."]},
+ {t:"Le Browser et les plugins", g:"all", items:[
+  "Ajoute ton dossier Samples au Browser : Options › File settings › Browser extra search folders.",
+  "Ouvre Options › Manage plugins › Find plugins après chaque installation ; préfère les versions VST3.",
+  "Mets une étoile ⭐ sur tes 15–20 plugins de base : ils seront en tête du Plugin picker (F8).",
+  "Range le Plugin database en dossiers à toi (Synthés, Orchestre, Batterie, Effets) : clic droit dans le Browser pour créer des dossiers et glisser les plugins.",
+  "Désinstalle ce que tu n'utilises jamais : moins de choix, plus de musique."]},
+ {t:"Les templates", g:"all", items:[
+  "Un template par style : <b>House 124</b>, <b>Électro 128</b>, <b>Trap 140</b>, <b>Boom-bap 90</b>, <b>Orchestre BBC</b>.",
+  "Chaque template contient déjà : canaux nommés et colorés, mixer routé, bus, envois de reverb/delay, Youlean sur le Master.",
+  "Range-les dans un dossier <code>Templates/</code> à toi. À chaque nouveau morceau : ouvre le bon template, puis File › Save as sous le nom du morceau avant de jouer une note.",
+  "Mets ton template à jour quand tu refais trois fois la même manip au début d'un projet."]},
+ {t:"Noms et couleurs", g:"all", items:[
+  "F2 sur un canal, un pattern ou une piste : renommer et choisir la couleur.",
+  "Un code couleur fixe, le même dans tous tes projets : batterie rouge, basse bleue, accords vert, mélodie jaune, FX gris, voix violet.",
+  "Patterns nommés par rôle et section : <code>Drums – Couplet</code>, <code>Drums – Refrain</code>.",
+  "Ctrl+L route un canal vers le mixer et donne son nom à la piste : nomme d'abord, route ensuite.",
+  "Playlist : une piste par instrument, des marqueurs sur chaque section (Intro, Couplet, Drop…)."]},
+ {t:"Le mixer", g:"all", items:[
+  "Pistes dans l'ordre : batterie, basse, harmonie, mélodies, FX, puis les bus, puis les retours d'effets.",
+  "Des bus : <b>Drums</b>, <b>Basses</b>, <b>Musique</b>. Tous les éléments vont dans un bus, les bus vont au Master.",
+  "Les 2–3 dernières pistes réservées aux retours : Reverb courte, Reverb longue, Delay.",
+  "Laisse le Master presque vide pendant la composition (juste un limiteur de sécurité et un analyseur)."]},
+ {t:"Projet orchestral", g:"film", items:[
+  "Channel Rack dans l'ordre de la partition : bois, cuivres, percussions, harpe/claviers, cordes.",
+  "Une couleur par famille : bois verts, cuivres jaunes, percussions rouges, cordes bleues.",
+  "Une voie par articulation (ex. <code>Vln1 Legato</code>, <code>Vln1 Spicc</code>) plutôt que des keyswitches : la Playlist se lit comme une partition.",
+  "Groupe les canaux par famille avec les groupes de filtres du Channel Rack, pour n'afficher que les cordes quand tu travailles les cordes.",
+  "Bus par famille + une reverb commune : l'orchestre sonne dans une même salle."]},
+ {t:"Sauvegarde et performances", g:"all", items:[
+  "Ctrl+N : enregistre une nouvelle version numérotée du projet. Fais-le avant chaque grosse modification.",
+  "Active la sauvegarde automatique dans Options › File settings.",
+  "Pour envoyer ou archiver un projet complet : File › Export › Zipped loop package (le projet et tous ses sons).",
+  "Projet lourd : active le Smart disable des plugins, augmente le buffer audio, et transforme en audio les pistes terminées (Consolidate).",
+  "Pour l'orchestre, purge les échantillons non utilisés dans BBC SO quand l'arrangement est fixé."]},
+ {t:"Ta routine de session", g:"all", items:[
+  "Ouvre un template, nomme et enregistre le projet avant de jouer la première note.",
+  "20 premières minutes : uniquement créer (pas de mixage, pas de recherche de presets).",
+  "Limite-toi à 3–4 instruments pour démarrer une idée.",
+  "Fin de session : exporte un MP3 brouillon dans <code>Exports/</code> et écoute-le le lendemain avec une oreille neuve.",
+  "Note dans le nom du fichier ce qui reste à faire : <code>Trap sombre – v3 – mix à faire.flp</code>."]}
+];
+function renderOrganisation(){
+  const blocks = ORG.filter(b=>fits([b.g]));
+  document.getElementById("v-organisation").innerHTML = `<div><h2>Organiser FL Studio</h2><p class="lede">Un FL bien rangé, c'est moins de temps à chercher et plus de temps à composer. Mets ces habitudes en place une fois, et chaque nouveau projet démarre en quelques secondes.</p></div>
+   <div class="two">${blocks.map(b=>`<div class="card g-${b.g}"><div class="card-head"><h3>${b.t}</h3>${b.g!=="all"?`<span class="tag g-${b.g}">${GN[b.g]}</span>`:""}</div><ul class="org">${b.items.map(i=>`<li>${i}</li>`).join("")}</ul></div>`).join("")}</div>`;
+}
+
+/* ---------- VIDÉOS & ARTICLES ---------- */
+// s = étape du parcours (index). Sans u : lien de recherche YouTube (toujours à jour, jamais cassé).
+const VIDEOS = [
+ {s:0,g:["all"],t:"Configurer un clavier MIDI dans FL Studio",q:"FL Studio MIDI keyboard setup tutorial"},
+ {s:0,g:["all"],t:"Réduire la latence audio (ASIO, buffer)",q:"FL Studio ASIO latency buffer settings"},
+ {s:1,g:["all"],t:"Manuel officiel FL Studio (Image-Line)",u:"https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/",d:"La référence pour chaque fenêtre et chaque plugin natif."},
+ {s:1,g:["all"],t:"Tutos officiels Image-Line pour débutants",q:"Image-Line FL Studio beginner tutorial"},
+ {s:1,g:["all"],t:"Enregistrer au clavier et récupérer le score log",q:"FL Studio record MIDI keyboard dump score log"},
+ {s:1,g:["rap"],t:"Découper un sample avec Slicex",q:"FL Studio Slicex chop sample tutorial"},
+ {s:2,g:["all"],t:"Leçons de théorie musicale (musictheory.net)",u:"https://www.musictheory.net/lessons",d:"Gammes, accords, intervalles : courtes leçons interactives."},
+ {s:2,g:["all"],t:"Théorie des accords pour producteurs",q:"music theory for producers chords scales FL Studio"},
+ {s:2,g:["house"],t:"Accords de deep house (m7, m9)",q:"deep house chords tutorial minor 9th"},
+ {s:2,g:["film"],t:"Les modes dans la musique de film",q:"modes in film music lydian dorian phrygian explained"},
+ {s:2,g:["film"],t:"Médiantes chromatiques : le son « magique »",q:"chromatic mediants film music explained"},
+ {s:3,g:["house"],t:"Programmer une batterie house qui groove",q:"house drum groove programming FL Studio"},
+ {s:3,g:["rap"],t:"Rolls de hi-hats trap",q:"trap hi hat rolls FL Studio piano roll"},
+ {s:3,g:["rap"],t:"Batterie boom-bap et swing",q:"boom bap drums swing FL Studio tutorial"},
+ {s:3,g:["film"],t:"Écrire un ostinato de cordes",q:"string ostinato orchestration tutorial epic"},
+ {s:4,g:["all"],t:"Vital pour débutants",q:"Vital synth tutorial for beginners"},
+ {s:4,g:["electro"],t:"Supersaw dans Vital",q:"Vital supersaw tutorial"},
+ {s:4,g:["rap"],t:"Créer une 808 dans Vital",q:"Vital 808 bass tutorial glide"},
+ {s:4,g:["film"],t:"Pads et drones cinématiques dans Vital",q:"Vital cinematic pad drone sound design"},
+ {s:5,g:["all"],t:"Arranger : de la boucle au morceau",q:"how to arrange a song from a loop electronic music"},
+ {s:5,g:["electro"],t:"Build-up et drop dans FL Studio",q:"EDM build up drop tutorial FL Studio"},
+ {s:5,g:["film"],t:"Structurer une cue de musique de film",q:"film music cue structure composing tutorial Guy Michelmore"},
+ {s:6,g:["all"],t:"Mixer dans FL Studio : gain staging et EQ",q:"FL Studio mixing tutorial gain staging EQ"},
+ {s:6,g:["house","electro"],t:"Sidechain avec Fruity Limiter",q:"FL Studio sidechain Fruity Limiter tutorial"},
+ {s:6,g:["rap"],t:"Faire cohabiter kick et 808",q:"mixing kick and 808 together"},
+ {s:6,g:["film"],t:"Mixer des samples orchestraux",q:"mixing orchestral sample libraries tutorial"},
+ {s:7,g:["film"],t:"Prise en main de BBC Symphony Orchestra",q:"BBC Symphony Orchestra Spitfire walkthrough tutorial"},
+ {s:7,g:["film"],t:"Orchestration des cordes",q:"Orchestration Online strings"},
+ {s:7,g:["film"],t:"Orchestration des cuivres",q:"Orchestration Online brass"},
+ {s:7,g:["film"],t:"Template orchestral et workflow",q:"orchestral template workflow Christian Henson"},
+ {s:7,g:["film"],t:"Traité d'orchestration de Rimsky-Korsakov (libre)",u:"https://www.gutenberg.org/ebooks/33900",d:"Principes d'orchestration, texte du domaine public."},
+ {s:8,g:["all"],t:"Écrire une mélodie mémorable",q:"how to write a memorable melody"},
+ {s:8,g:["film"],t:"Le leitmotiv expliqué",q:"leitmotif film music explained"},
+ {s:8,g:["film"],t:"Analyses de thèmes de John Williams",q:"John Williams theme analysis"},
+ {s:9,g:["film"],t:"Composer à l'image dans FL Studio",q:"FL Studio Fruity Video Player 2 scoring to picture"},
+ {s:9,g:["film"],t:"Le spotting expliqué",q:"film composer spotting session explained"},
+ {s:9,g:["film"],t:"Films libres à rescorer (Blender Studio)",u:"https://studio.blender.org/films/",d:"Courts-métrages sous licence Creative Commons."},
+ {s:10,g:["all"],t:"Mastering dans FL Studio",q:"FL Studio mastering tutorial Maximus limiter"},
+ {s:10,g:["all"],t:"Comprendre les LUFS",q:"LUFS loudness explained streaming"},
+ {s:11,g:["all"],t:"Finir plus de morceaux",q:"how to finish more songs music producer workflow"},
+ {s:11,g:["film"],t:"Construire une démo de compositeur de film",q:"film composer demo reel tips"}
+];
+const vidUrl = v => v.u || "https://www.youtube.com/results?search_query="+encodeURIComponent(v.q);
+let seen = store.get("seen",{}), vidStage = store.get("vidStage","all");
+function renderVideos(){
+  const list = VIDEOS.map((v,i)=>({...v,id:"v"+i})).filter(v=>fits(v.g) && (vidStage==="all"||v.s===+vidStage));
+  document.getElementById("v-videos").innerHTML = `<div><h2>Vidéos &amp; articles</h2><p class="lede">Une sélection par étape du parcours. Les liens YouTube ouvrent une recherche ciblée : tu choisis la vidéo la plus récente et la mieux notée (YouTube ne peut pas s'afficher dans cette page). Coche « Vu » pour gagner 5 XP.</p></div>
+   <div class="filters"><label class="inl" for="vstage">Étape</label><select id="vstage" style="width:auto"><option value="all">Toutes les étapes</option>${STAGES.map((s,i)=>`<option value="${i}" ${String(i)===String(vidStage)?"selected":""}>${String(i+1).padStart(2,"0")} · ${s.t}</option>`).join("")}</select><span>${list.filter(v=>seen[v.id]).length} / ${list.length} vus</span></div>
+   <div class="vid-list">${list.map(v=>`<div class="tool"><div class="tool-head"><h4>${v.t}</h4><span class="price ${v.u?"cheap":"free"}">${v.u?"Article":"YouTube"}</span></div>
+     <div>${tagHtml(v.g)}<span class="count">Étape ${String(v.s+1).padStart(2,"0")}</span></div>${v.d?`<p>${v.d}</p>`:""}
+     <div class="tool-foot"><a href="${vidUrl(v)}" target="_blank" rel="noopener">${v.u?"Lire ↗":"Voir les vidéos ↗"}</a><label class="inl" for="${v.id}"><input type="checkbox" id="${v.id}" data-v="${v.id}" ${seen[v.id]?"checked":""}> Vu</label></div></div>`).join("") || `<p class="lede">Rien pour ce filtre.</p>`}</div>`;
+  document.getElementById("vstage").addEventListener("change",e=>{vidStage=e.target.value;store.set("vidStage",vidStage);renderVideos();});
+  document.querySelectorAll("#v-videos input[data-v]").forEach(cb=>cb.addEventListener("change",()=>{seen[cb.dataset.v]=cb.checked;store.set("seen",seen);}));
+}
+
+/* ---------- XP, NIVEAUX, BADGES, QUÊTES ---------- */
+let remakes = store.get("remakes",[]);
+const LEVELS = [[0,"Apprenti"],[100,"Beatmaker"],[250,"Arrangeur"],[450,"Producteur"],[700,"Orchestrateur"],[1000,"Compositeur"],[1400,"Maître du score"]];
+const cnt = o => Object.values(o||{}).filter(Boolean).length;
+function xp(){ return cnt(checks)*10 + cnt(doneModels)*40 + cnt(seen)*5 + cnt(installed)*5
+  + remakes.reduce((a,r)=>a+(r.done?60:0)+cnt(r.steps)*5,0)
+  + cnt(quiz)*30 + (ear.ok||0) + Object.values(journal).filter(m=>+m>=20).length*5; }
+function level(){ const x=xp(); let i=0; LEVELS.forEach((l,j)=>{ if(x>=l[0]) i=j; });
+  const next = LEVELS[i+1]; return {x, n:i+1, name:LEVELS[i][1], next: next?next[0]:null, nextName: next?next[1]:null, pct: next? Math.round((x-LEVELS[i][0])/(next[0]-LEVELS[i][0])*100) : 100}; }
+function hud(){ const l=level(); document.getElementById("hud").innerHTML = `<span class="lv">${l.n}</span><span><b>${l.name}</b><span class="mini"><i style="width:${l.pct}%"></i></span></span><span class="count">${l.x} XP</span>`; }
+const stageFull = i => STAGES[i].tasks.every((t,j)=>checks[`s${i}t${j}`]);
+const modelsOf = g => MODELS.filter(m=>m.g===g && doneModels[m.id]).length;
+const BADGES = [
+ ["🎹","Premier pas","Valider une première compétence",()=>cnt(checks)>=1],
+ ["🧭","Étape bouclée","Terminer toutes les tâches d'une étape",()=>STAGES.some((s,i)=>stageFull(i))],
+ ["🥁","Groove","Finir un modèle house ou rap",()=>modelsOf("house")+modelsOf("rap")>=1],
+ ["⚡","Drop","Finir un modèle électro",()=>modelsOf("electro")>=1],
+ ["🎻","Maestro","Finir 3 modèles de musique de film",()=>modelsOf("film")>=3],
+ ["📺","Curieux","Regarder 5 ressources",()=>cnt(seen)>=5],
+ ["🧰","Équipé","Installer 5 outils de la boîte à outils",()=>cnt(installed)>=5],
+ ["🔁","Remixeur","Terminer un remake",()=>remakes.some(r=>r.done)],
+ ["👂","Oreille d'or","Terminer 3 remakes",()=>remakes.filter(r=>r.done).length>=3],
+ ["🏔️","Mi-parcours","Valider la moitié des compétences",()=>cnt(checks)>=STAGES.reduce((a,s)=>a+s.tasks.length,0)/2],
+ ["🎓","Certifié","Réussir 3 quiz d'étape",()=>cnt(quiz)>=3],
+ ["🎧","Oreille fine","50 bonnes réponses à l'entraînement",()=>(ear.ok||0)>=50],
+ ["🔥","Régulier","7 jours de pratique d'affilée",()=>streak()>=7],
+ ["🎬","Synchro","Préparer une fiche de repérage de 5 moments",()=>spot.hits.filter(h=>!isNaN(parseTC(h.t))).length>=5],
+ ["🏆","Compositeur complet","Terminer les 12 étapes",()=>STAGES.every((s,i)=>stageFull(i))]
+];
+const DEFIS = [
+ "Finis un beat d'une minute en 45 minutes chrono, sans changer de preset.",
+ "Compose 8 mesures avec un seul son Vital, créé à partir du preset Init.",
+ "Écris un motif de 4 notes et décline-le en 3 humeurs : héroïque, triste, inquiétant.",
+ "Refais à l'oreille 15 secondes d'une bande originale que tu aimes (Studio remake).",
+ "Rescore 30 secondes d'un court-métrage Blender Studio.",
+ "Mixe un ancien projet uniquement avec des EQ, sans compresseur.",
+ "Joue tout un morceau au clavier MIDI sans dessiner une seule note à la souris.",
+ "Compose une boucle dans un style que tu n'as jamais essayé."
+];
+function nextTask(){ for(let i=0;i<STAGES.length;i++){ const j=STAGES[i].tasks.findIndex((t,j)=>fits([t[0]]) && !checks[`s${i}t${j}`]); if(j>=0) return {i,j,t:STAGES[i].tasks[j]}; } return null; }
+function renderQuetes(){
+  const l=level(), nt=nextTask(), lvlRank={"Débutant":0,"Intermédiaire":1,"Avancé":2,"Tous niveaux":0};
+  const model = MODELS.filter(m=>fits([m.g]) && !doneModels[m.id]).sort((a,b)=>lvlRank[a.lvl]-lvlRank[b.lvl])[0];
+  const vid = VIDEOS.map((v,i)=>({...v,id:"v"+i})).find(v=>fits(v.g) && !seen[v.id] && (!nt || v.s===nt.i)) || VIDEOS.map((v,i)=>({...v,id:"v"+i})).find(v=>fits(v.g)&&!seen[v.id]);
+  const week = Math.floor(Date.now()/6048e5), defi = DEFIS[week % DEFIS.length];
+  const open = remakes.find(r=>!r.done);
+  document.getElementById("v-quetes").innerHTML = `
+   <div class="hero-q"><div class="big-lv" style="--p:${l.pct}"><span>${l.n}</span></div>
+     <div><h2>${l.name}</h2><p>${l.x} XP${l.next?` · encore <b>${l.next-l.x} XP</b> pour devenir <b>${l.nextName}</b>`:" · niveau maximum atteint"}. Style suivi : <b>${GN[genre]}</b>.</p>
+     <p class="status" style="font-size:.8rem">Compétence +10 · Quiz d'étape +30 · Bonne réponse d'oreille +1 · Jour de pratique (20 min) +5 · Vidéo +5 · Outil +5 · Étape de remake +5 · Modèle +40 · Remake terminé +60</p></div></div>
+   <div><h3>Tes prochaines quêtes</h3></div>
+   <div class="recs">
+    ${nt?`<div class="rec g-${nt.t[0]}"><span class="kind">Compétence · étape ${String(nt.i+1).padStart(2,"0")}</span><b>${STAGES[nt.i].t}</b><p>${nt.t[1]}</p><span class="xp">+10 XP</span><button class="done-btn" id="q-task">Je maîtrise</button></div>`:`<div class="rec"><span class="kind">Parcours</span><b>Parcours terminé pour ce style !</b><p>Change de style en haut pour de nouvelles quêtes.</p></div>`}
+    ${model?`<div class="rec g-${model.g}"><span class="kind">Modèle à refaire · ${model.lvl}</span><b>${model.t}</b><p>${model.goal} (${model.time})</p><span class="xp">+40 XP</span><a href="#modeles">Ouvrir le modèle →</a></div>`:""}
+    ${vid?`<div class="rec g-${vid.g[0]}"><span class="kind">À regarder</span><b>${vid.t}</b><span class="xp">+5 XP</span><a href="${vidUrl(vid)}" target="_blank" rel="noopener">${vid.u?"Lire ↗":"Voir les vidéos ↗"}</a><button class="done-btn" id="q-vid" data-v="${vid.id}">Vu</button></div>`:""}
+    <div class="rec g-all"><span class="kind">Remake</span>${open?`<b>Continue : ${esc(open.title)}</b><p>${cnt(open.steps)} étapes validées.</p>`:`<b>Refais un morceau que tu aimes</b><p>Colle un lien YouTube, Claude te prépare le plan étape par étape.</p>`}<span class="xp">jusqu'à +60 XP</span><a href="#remake">Studio remake →</a></div>
+    <div class="rec g-house"><span class="kind">Routine du jour</span>${(+journal[dayKey(new Date())]||0)>=20?`<b>✓ Pratique du jour validée</b><p>Série en cours : ${streak()} jour(s).</p>`:`<b>20 minutes de pratique</b><p>Lance le chrono du journal, puis 5 minutes d'oreille pour finir.</p>`}<span class="xp">+5 XP par jour</span><a href="#journal">Journal →</a></div>
+    <div class="rec g-film"><span class="kind">Défi de la semaine</span><b>${defi}</b><p>Un nouveau défi chaque lundi.</p></div>
+   </div>
+   <div><h3>La carte du parcours</h3></div>
+   <div class="map">${STAGES.map((s,i)=>{const n=s.tasks.length, d=s.tasks.filter((t,j)=>checks[`s${i}t${j}`]).length; return `<a class="node ${d===n?"full":""} ${nt&&nt.i===i?"cur":""}" href="#parcours" data-i="${i}"><b>${String(i+1).padStart(2,"0")} · ${d}/${n}</b>${s.t}<span class="fill" style="width:${d/n*100}%"></span></a>`;}).join("")}</div>
+   <div><h3>Badges</h3></div>
+   <div class="badges">${BADGES.map(b=>{const on=b[3](); return `<div class="badge ${on?"on":""}" title="${b[2]}"><span class="ico" aria-hidden="true">${on?b[0]:"🔒"}</span><b>${b[1]}</b><small>${b[2]}</small></div>`;}).join("")}</div>`;
+  const qt=document.getElementById("q-task"); if(qt) qt.addEventListener("click",()=>{checks[`s${nt.i}t${nt.j}`]=true;store.set("checks",checks);renderQuetes();});
+  const qv=document.getElementById("q-vid"); if(qv) qv.addEventListener("click",()=>{seen[qv.dataset.v]=true;store.set("seen",seen);renderQuetes();});
+  document.querySelectorAll(".node").forEach(a=>a.addEventListener("click",()=>store.set("open"+a.dataset.i,true)));
+}
+
+/* ---------- STUDIO REMAKE ---------- */
+const METHOD = [
+ "Écoute le morceau 3 fois sans rien faire : note la structure (intro, couplet, refrain…) avec les minutages.",
+ "Trouve le tempo avec le tap tempo, puis règle FL dessus.",
+ "Trouve la tonique avec les notes de référence (celle qui « repose »), puis la gamme majeure ou mineure.",
+ "Glisse le morceau dans la Playlist comme clip audio de référence, aligné sur la grille.",
+ "Refais la batterie : kick et snare d'abord, puis les hats et les percussions.",
+ "Refais la basse en suivant les fondamentales.",
+ "Trouve les accords au clavier, un par un.",
+ "Retrouve la mélodie principale à l'oreille, phrase par phrase.",
+ "Recrée les sons (Vital, BBC SO, samples) en t'approchant du timbre.",
+ "Compare ta version et l'original au même volume, corrige ce qui diffère le plus."
+];
+let curRm = store.get("curRm", null), taps = [], rmCtl = null;
+const ytOk = u => { try{ const h=new URL(u).hostname.replace(/^www\.|^m\./,""); return ["youtube.com","youtu.be","music.youtube.com"].includes(h) ? u : ""; }catch(e){ return ""; } };
+function saveRm(r, gone){ if(r){ r.upd = Date.now(); syncRemake(r, gone); } store.set("remakes", remakes); hud(); }
+function renderRemake(){
+  const r = remakes.find(x=>x.id===curRm) || null;
+  const el = document.getElementById("v-remake");
+  el.innerHTML = `<div><h2>Studio remake</h2><p class="lede">Refais un morceau existant pour apprendre : colle le lien YouTube, indique le titre et l'artiste. Claude te prépare un plan sur mesure (structure, sons, étapes dans FL) et tu suis la méthode pas à pas. Ces remakes sont des exercices : garde-les pour toi, ne les publie pas.</p></div>
+   <form class="card" id="rm-form"><div class="form">
+     <label class="field" for="rm-url">Lien YouTube (facultatif)<input id="rm-url" type="url" placeholder="https://www.youtube.com/watch?v=…"></label>
+     <label class="field" for="rm-title">Titre du morceau<input id="rm-title" required placeholder="ex. le thème principal d'un film"></label>
+     <label class="field" for="rm-artist">Artiste / compositeur<input id="rm-artist" required></label>
+     <label class="field" for="rm-genre">Style<select id="rm-genre">${["electro","house","rap","film"].map(g=>`<option value="${g}" ${g===genre?"selected":""}>${GN[g]}</option>`).join("")}</select></label>
+     <button class="btn" type="submit">Créer le remake</button></div></form>
+   ${remakes.length?`<div class="rm-list" role="group" aria-label="Tes remakes">${remakes.map(x=>`<button data-id="${x.id}" aria-pressed="${x.id===curRm}">${x.done?"✓ ":""}${esc(x.title)}<small>${esc(x.artist)} · ${GN[x.genre]}</small></button>`).join("")}</div>`:""}
+   <div id="rm-detail"></div>`;
+  document.getElementById("rm-form").addEventListener("submit",e=>{ e.preventDefault();
+    const nr = {id:"r"+Date.now(), url:ytOk(document.getElementById("rm-url").value.trim()), title:document.getElementById("rm-title").value.trim().slice(0,120), artist:document.getElementById("rm-artist").value.trim().slice(0,120), genre:document.getElementById("rm-genre").value, steps:{}, plan:null, notes:"", bpm:null, done:false};
+    if(!nr.title||!nr.artist) return; remakes.unshift(nr); curRm=nr.id; store.set("curRm",curRm); saveRm(nr); renderRemake(); });
+  el.querySelectorAll(".rm-list button").forEach(b=>b.addEventListener("click",()=>{curRm=b.dataset.id;store.set("curRm",curRm);renderRemake();}));
+  if(r) renderRmDetail(r);
+}
+function renderRmDetail(r){
+  const yt = r.url || "https://www.youtube.com/results?search_query="+encodeURIComponent(r.title+" "+r.artist);
+  const p = r.plan, li = a => (a||[]).map(x=>`<li>${esc(x)}</li>`).join("");
+  const prog = p && Array.isArray(p.progression) ? p.progression.map(s=>parseChord(String(s))).filter(Boolean) : [];
+  const d = document.getElementById("rm-detail");
+  d.innerHTML = `<div class="card g-${r.genre}"><div class="card-head"><h3>${esc(r.title)} · ${esc(r.artist)}</h3><span class="tag g-${r.genre}">${GN[r.genre]}</span></div>
+    <div class="controls"><a class="btn" href="${esc(yt)}" target="_blank" rel="noopener">▶ ${r.url?"Ouvrir la vidéo":"Chercher sur YouTube"} ↗</a>
+    <button class="btn ghost" id="rm-done" aria-pressed="${r.done}">${r.done?"✓ Remake terminé":"Marquer terminé (+60 XP)"}</button>
+    <button class="btn ghost" id="rm-del">Supprimer</button></div></div>
+   <div class="two">
+    <div class="card"><h3>Tap tempo</h3><p class="lede">Lance la vidéo et tape sur la noire (le kick ou le pas de la musique) au moins 8 fois.</p>
+     <button class="tap" id="tap">${r.bpm?r.bpm+" BPM":"Tape ici"}</button>
+     <div class="controls"><button class="btn ghost" id="tap-save">Garder ce tempo</button><span class="count" id="tap-info">${r.bpm?"Tempo gardé : "+r.bpm+" BPM":""}</span></div></div>
+    <div class="card"><h3>Trouver la tonalité</h3><p class="lede">Pendant que le morceau joue, clique les notes : celle qui sonne « à la maison » est la tonique. Puis vérifie au clavier MIDI si c'est majeur ou mineur.</p>
+     <div class="keys">${FLT.map((n,i)=>`<button data-m="${60+i}">${n}</button>`).join("")}</div></div>
+   </div>
+   <div class="card"><div class="card-head"><h3>Plan sur mesure par Claude</h3></div><div id="rm-plan" class="plan">
+    ${p?`${p.avertissement?`<div class="warn">${esc(p.avertissement)}</div>`:""}
+     <dl class="specs"><div class="spec"><dt>Tempo estimé</dt><dd>${esc(p.tempo)}</dd></div><div class="spec"><dt>Tonalité estimée</dt><dd>${esc(p.tonalite)}</dd></div><div class="spec"><dt>Ambiance</dt><dd>${esc(p.ambiance)}</dd></div></dl>
+     <div class="tbl-wrap"><table><thead><tr><th>Section</th><th>Mesures</th><th>Ce qui s'y passe</th></tr></thead><tbody>${(p.structure||[]).map(s=>`<tr><td>${esc(s.section)}</td><td class="mono">${esc(s.mesures)}</td><td>${esc(s.contenu)}</td></tr>`).join("")}</tbody></table></div>
+     <div class="tbl-wrap"><table><thead><tr><th>Rôle</th><th>Plugin</th><th>Comment l'obtenir</th></tr></thead><tbody>${(p.sons||[]).map(s=>`<tr><td>${esc(s.role)}</td><td>${esc(s.plugin)}</td><td>${esc(s.comment)}</td></tr>`).join("")}</tbody></table></div>
+     ${prog.length?`<div class="block"><h4>Progression d'accords (estimée)</h4><div class="chain">${prog.map(c=>`<span>${esc(c.name)}</span>`).join("<em>›</em>")}</div>
+       <div class="controls" style="margin-top:8px"><button class="btn ghost" id="rm-midi">⬇ Exporter en MIDI</button><span class="status" id="rm-midi-st"></span></div></div>`:""}
+     <div class="block"><h4>Étapes dans FL Studio (+5 XP chacune)</h4><ul class="tasks">${(p.etapes||[]).map((e,i)=>`<li><label><input type="checkbox" id="${r.id}-p${i}" data-k="p${i}" ${r.steps["p"+i]?"checked":""}><span><b>${esc(e.titre)}</b> : ${esc(e.detail)}</span></label></li>`).join("")}</ul></div>
+     <div class="block"><h4>Conseils</h4><ul>${li(p.conseils)}</ul></div>
+     ${p.a_ecouter&&p.a_ecouter.length?`<div class="block"><h4>Pour aller plus loin</h4><ul>${li(p.a_ecouter)}</ul></div>`:""}
+     <p class="status">Tempo et tonalité sont des estimations : vérifie-les à l'oreille avec les outils ci-dessus.</p>`
+    :`<p class="lede" id="rm-hint">Claude ne peut pas écouter la vidéo : il s'appuie sur ce qu'il sait du morceau et te dit s'il ne le connaît pas. Le plan prend environ une minute.</p>`}
+    <div class="controls"><button class="btn" id="rm-ask" hidden>${p?"Refaire le plan":"Générer le plan avec Claude"}</button><button class="btn ghost" id="rm-stop" hidden>Arrêter</button><span class="status" id="rm-status"></span></div>
+   </div></div>
+   <div class="card"><h3>Méthode du remake (+5 XP par étape)</h3><ul class="tasks">${METHOD.map((m,i)=>`<li><label><input type="checkbox" id="${r.id}-m${i}" data-k="m${i}" ${r.steps["m"+i]?"checked":""}><span>${m}</span></label></li>`).join("")}</ul></div>
+   <div class="card"><label class="field" for="rm-notes"><h3 style="color:var(--fg)">Tes notes</h3><textarea id="rm-notes" placeholder="Tempo, accords trouvés, réglages de sons, ce qui reste à faire…">${esc(r.notes)}</textarea></label></div>`;
+  d.querySelectorAll("input[data-k]").forEach(cb=>cb.addEventListener("change",()=>{ r.steps[cb.dataset.k]=cb.checked; saveRm(r); }));
+  let nt; d.querySelector("#rm-notes").addEventListener("input",e=>{ clearTimeout(nt); nt=setTimeout(()=>{ r.notes=e.target.value.slice(0,5000); saveRm(r); },600); });
+  d.querySelector("#rm-done").addEventListener("click",()=>{ r.done=!r.done; saveRm(r); renderRemake(); });
+  const del=d.querySelector("#rm-del"); del.addEventListener("click",()=>{ if(del.dataset.sure){ remakes=remakes.filter(x=>x.id!==r.id); curRm=null; saveRm(r,true); renderRemake(); } else { del.dataset.sure="1"; del.textContent="Confirmer la suppression"; } });
+  const mb=d.querySelector("#rm-midi"); if(mb) mb.addEventListener("click",async()=>{ d.querySelector("#rm-midi-st").textContent = await saveMidi(("remake "+r.title).replace(/[^\w\- ]+/g,"").slice(0,60)||"remake", midiFile(prog, r.bpm||parseInt(p.tempo)||100)); });
+  d.querySelector("#tap").addEventListener("click",e=>{ const now=performance.now(); if(taps.length && now-taps[taps.length-1]>2000) taps=[]; taps.push(now); taps=taps.slice(-12);
+    if(taps.length>1){ const bpm=Math.round(60000/((taps[taps.length-1]-taps[0])/(taps.length-1))); e.target.textContent=bpm+" BPM"; e.target.dataset.bpm=bpm; } else e.target.textContent="…"; });
+  d.querySelector("#tap-save").addEventListener("click",()=>{ const b=+d.querySelector("#tap").dataset.bpm; if(b){ r.bpm=b; saveRm(r); d.querySelector("#tap-info").textContent="Tempo gardé : "+b+" BPM"; } });
+  d.querySelectorAll(".keys button").forEach(b=>b.addEventListener("click",()=>{ try{ ctx = ctx || new (window.AudioContext||window.webkitAudioContext)(); ctx.resume();
+    const o=ctx.createOscillator(), g=ctx.createGain(), t=ctx.currentTime; o.type="sine"; o.frequency.value=440*Math.pow(2,(+b.dataset.m-69)/12);
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(.25,t+.03); g.gain.setTargetAtTime(0,t+1.6,.2); o.connect(g); g.connect(ctx.destination); o.start(t); o.stop(t+2.4); }catch(e){} }));
+  setupAsk(r);
+}
+async function setupAsk(r){
+  const sampleFn = await cap("sample");
+  const ask=document.getElementById("rm-ask"), stop=document.getElementById("rm-stop"), st=document.getElementById("rm-status");
+  if(!ask) return;
+  if(!sampleFn){ st.textContent = "Le plan par Claude s'active quand la page est ouverte dans Claude. La méthode ci-dessous marche partout."; return; }
+  ask.hidden=false;
+  ask.onclick = async ()=>{
+    rmCtl = new AbortController(); ask.disabled=true; stop.hidden=false; st.textContent="Claude prépare ton plan… (environ une minute)";
+    const prompt = `Tu es un professeur de production musicale. L'élève veut refaire, pour apprendre et sans le publier, le morceau « ${r.title} » de ${r.artist}${r.url?` (vidéo YouTube : ${r.url})`:""}. Style : ${GN[r.genre]}. Son niveau : ${level().name}.
+Son matériel : FL Studio Producer Edition, Vital, BBC Symphony Orchestra (version inconnue : Discover, Core ou Pro), un clavier MIDI, et ces plugins gratuits : Spitfire LABS, Surge XT, Dexed, Valhalla Supermassive, TDR Nova, Xfer OTT, Youlean Loudness Meter, Voxengo SPAN.
+Tu ne peux pas écouter la vidéo : appuie-toi sur ce que tu sais du morceau. Si tu ne le connais pas avec certitude, dis-le dans "avertissement" et donne un plan pour un morceau typique de ce style. Présente tempo et tonalité comme des estimations à vérifier à l'oreille.
+Ne cite aucune parole et ne transcris pas la mélodie note par note : donne des indices (contour, rythme, gamme, intervalles marquants) pour que l'élève la retrouve lui-même. Tu peux indiquer la progression d'accords.
+Réponds uniquement avec un objet JSON, en français, de cette forme :
+{"avertissement": string ou null, "tempo": string, "tonalite": string, "ambiance": string, "progression": [string], "structure": [{"section": string, "mesures": string, "contenu": string}], "sons": [{"role": string, "plugin": string, "comment": string}], "etapes": [{"titre": string, "detail": string}], "conseils": [string], "a_ecouter": [string]}
+"progression" : la boucle d'accords principale, un accord par mesure, en notation anglaise simple (ex. "Am", "F", "Cmaj7", "G/B", "Dm7"), tableau vide si tu ne sais pas. "etapes" : 8 à 12 étapes concrètes dans FL Studio, dans l'ordre, chacune faisable en une session. "sons" : un par élément important, avec une recette de réglage courte.`;
+    try{
+      const plan = await sampleFn.json(prompt, {signal: rmCtl.signal, cache: false});   // « Refaire le plan » doit donner un nouveau plan
+      if(!plan || typeof plan!=="object" || !Array.isArray(plan.etapes)) throw {code:"invalid_json"};
+      r.plan = plan; Object.keys(r.steps).filter(k=>k[0]==="p").forEach(k=>delete r.steps[k]); saveRm(r); renderRemake();
+    }catch(e){
+      const msg = {not_granted:"Tu n'as pas autorisé la page à utiliser Claude.",rate_limited:"Trop de demandes pour l'instant : réessaie dans quelques minutes.",invalid_json:"La réponse n'était pas au bon format : clique pour réessayer.",refused:"Claude n'a pas pu traiter ce morceau : essaie avec un autre titre.",cancelled:""}[e&&e.code];
+      st.textContent = msg ?? "Erreur passagère : réessaie.";
+      if(["not_granted","sampling_disabled","not_declared"].includes(e&&e.code)) ask.hidden=true;
+    }finally{ ask.disabled=false; stop.hidden=true; }
+  };
+  stop.onclick = ()=> rmCtl && rmCtl.abort();
+}
+
+/* ---------- MIDI ---------- */
+// Fichier MIDI type 0 : un accord (basse + notes) par mesure de 4 temps.
+function midiFile(chords, bpm){
+  const ppq=480, bar=ppq*4, ev=[], vlq=n=>{const b=[n&127]; while(n>>=7) b.unshift((n&127)|128); return b;};
+  chords.forEach((c,i)=>{ const t=i*bar; [...(c.bass!=null?[c.bass]:[]),...c.notes].forEach(n=>{ ev.push([t,1,[0x90,n,90]]); ev.push([t+bar-20,0,[0x80,n,0]]); }); });
+  ev.sort((a,b)=>a[0]-b[0]||a[1]-b[1]);
+  const us=Math.round(60000000/Math.max(20,Math.min(300,bpm||120)));
+  let tr=[0,0xFF,0x51,3,(us>>16)&255,(us>>8)&255,us&255], last=0;
+  ev.forEach(([t,,b])=>{ tr.push(...vlq(t-last),...b); last=t; });
+  tr.push(0,0xFF,0x2F,0);
+  const len=tr.length, head=[77,84,104,100,0,0,0,6,0,0,0,1,ppq>>8,ppq&255,77,84,114,107,(len>>>24)&255,(len>>16)&255,(len>>8)&255,len&255];
+  return new Uint8Array([...head,...tr]);
+}
+// Le .mid n'est pas autorisé au téléchargement dans Claude : on l'emballe dans un .zip (sans compression).
+const CRC = Array.from({length:256},(_,n)=>{ for(let k=0;k<8;k++) n = n&1 ? 0xEDB88320^(n>>>1) : n>>>1; return n>>>0; });
+function zipOne(name, data){
+  let crc=0xFFFFFFFF; data.forEach(b=>crc=CRC[(crc^b)&255]^(crc>>>8)); crc=(crc^0xFFFFFFFF)>>>0;
+  const nm=new TextEncoder().encode(name), out=new Uint8Array(30+nm.length+data.length+46+nm.length+22), v=new DataView(out.buffer);
+  const hdr=(o,central)=>{ let p=o; v.setUint32(p,central?0x02014b50:0x04034b50,true); p+=4; if(central){ v.setUint16(p,20,true); p+=2; }
+    v.setUint16(p,20,true); v.setUint16(p+2,0,true); v.setUint16(p+4,0,true); v.setUint16(p+6,0,true); v.setUint16(p+8,0x21,true);
+    v.setUint32(p+10,crc,true); v.setUint32(p+14,data.length,true); v.setUint32(p+18,data.length,true); v.setUint16(p+22,nm.length,true); v.setUint16(p+24,0,true); p+=26;
+    if(central){ p+=14; } out.set(nm,p); return p+nm.length; };   // central : commentaire, disque, attributs, offset = 0
+  let p=hdr(0,false); out.set(data,p); p+=data.length; const cd=p; p=hdr(cd,true);
+  v.setUint32(p,0x06054b50,true); v.setUint16(p+8,1,true); v.setUint16(p+10,1,true); v.setUint32(p+12,p-cd,true); v.setUint32(p+16,cd,true);
+  return out;
+}
+async function saveMidi(name, bytes){
+  if(!window.claude){ const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([bytes],{type:"audio/midi"})); a.download=name+".mid"; document.body.append(a); a.click(); a.remove();
+    return "Fichier .mid téléchargé : glisse-le dans le Piano Roll ou la Playlist de FL."; }
+  const dl = await cap("downloads"); if(!dl) return "Téléchargement indisponible ici.";
+  try{ await dl.save({filename:name+".zip", data:zipOne(name+".mid", bytes)}); return "Enregistré : ouvre le .zip et glisse le .mid dans FL."; }
+  catch(e){ return e&&e.code==="declined" ? "" : "Téléchargement impossible ici."; }
+}
+// "Am7", "F#m", "Bb/D", "Cmaj7"… → {name, bass, notes} ; null si non reconnu.
+function parseChord(sym){
+  const m=/^([A-G])([#♯b♭]?)(maj9|maj7|M7|m7b5|m9|m7|m6|madd9|min|m|dim7|dim|°|aug|\+|sus2|sus4|7sus4|add9|9|7|6|5)?(?:\/([A-G])([#♯b♭]?))?$/.exec(sym.replace(/\s+/g,""));
+  if(!m) return null;
+  const pc={C:0,D:2,E:4,F:5,G:7,A:9,B:11}, acc=a=>(a==="#"||a==="♯")?1:(a==="b"||a==="♭")?-1:0, root=(pc[m[1]]+acc(m[2])+12)%12;
+  const Q={"":[0,4,7],maj7:[0,4,7,11],M7:[0,4,7,11],maj9:[0,4,7,11,14],m:[0,3,7],min:[0,3,7],m7:[0,3,7,10],m9:[0,3,7,10,14],m6:[0,3,7,9],madd9:[0,3,7,14],m7b5:[0,3,6,10],dim:[0,3,6],"°":[0,3,6],dim7:[0,3,6,9],aug:[0,4,8],"+":[0,4,8],sus2:[0,2,7],sus4:[0,5,7],"7sus4":[0,5,7,10],add9:[0,4,7,14],"9":[0,4,7,10,14],"7":[0,4,7,10],"6":[0,4,7,9],"5":[0,7]}[m[3]||""];
+  const base=57+((root-9+12)%12), bpc=m[4]?(pc[m[4]]+acc(m[5])+12)%12:root;
+  return {name:sym, bass:36+bpc, notes:Q.map(i=>base+i)};
+}
+function tone(midis, {at=0, dur=1, type="triangle", vol=.18, gap=0}={}){
+  try{ ctx = ctx || new (window.AudioContext||window.webkitAudioContext)(); ctx.resume(); }catch(e){ return; }
+  const t0=ctx.currentTime+.05+at;
+  midis.forEach((m,i)=>{ const t=t0+i*gap, o=ctx.createOscillator(), g=ctx.createGain(); o.type=type; o.frequency.value=440*Math.pow(2,(m-69)/12);
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+.02); g.gain.setTargetAtTime(0,t+dur-.1,.08); o.connect(g); g.connect(ctx.destination); o.start(t); o.stop(t+dur+.4); });
+}
+
+/* ---------- GAMMES & MODES ---------- */
+const SCALES = [
+ ["ionien","Majeur (ionien)",[0,2,4,5,7,9,11],"Lumineux, stable.","Pop, house joyeuse, fanfares"],
+ ["eolien","Mineur naturel (éolien)",[0,2,3,5,7,8,10],"Mélancolique, sérieux.","Rap, électro, drames"],
+ ["dorien","Dorien",[0,2,3,5,7,9,10],"Mineur avec une 6te lumineuse : héroïsme mélancolique.","Deep house, aventures, fantasy"],
+ ["phrygien","Phrygien",[0,1,3,5,7,8,10],"Seconde mineure sombre : menace, désert.","Trap sombre, thrillers, épique"],
+ ["lydien","Lydien",[0,2,4,6,7,9,11],"Quarte augmentée : émerveillement, espace, enfance.","Musique de film « magique »"],
+ ["mixolydien","Mixolydien",[0,2,4,5,7,9,10],"Majeur avec une 7e mineure : aventure, rock.","Funk, house, westerns"],
+ ["locrien","Locrien",[0,1,3,5,6,8,10],"Instable, angoissant.","Horreur, tension extrême"],
+ ["harm","Mineur harmonique",[0,2,3,5,7,8,11],"Sombre et exotique, tension vers la tonique.","Trap, musique orientale, méchants de film"],
+ ["mel","Mineur mélodique",[0,2,3,5,7,9,11],"Mineur souple, jazzy.","Jazz, musique de film élégante"],
+ ["pmaj","Pentatonique majeure",[0,2,4,7,9],"5 notes, impossible de sonner faux.","Mélodies simples, pop"],
+ ["pmin","Pentatonique mineure",[0,3,5,7,10],"5 notes, très « chantant ».","Rap, solos, hooks"],
+ ["blues","Blues",[0,3,5,6,7,10],"Pentatonique mineure + la « blue note ».","Boom-bap, soul, funk"]
+];
+let gRoot = store.get("gRoot",0), gScale = store.get("gScale","eolien");
+const useFlats = r => [1,3,5,8,10].includes(r);
+function renderGammes(){
+  const sc = SCALES.find(s=>s[0]===gScale)||SCALES[0], fl=useFlats(gRoot), names=fl?FLT:SH;
+  const pcs = sc[2].map(i=>(gRoot+i)%12);
+  const white=[0,2,4,5,7,9,11], keys=[];
+  for(let o=0;o<2;o++) for(let n=0;n<12;n++) keys.push({m:60+o*12+n, pc:n, black:!white.includes(n)});
+  const wIdx={}; let w=0; keys.forEach(k=>{ if(!k.black){ wIdx[k.m]=w++; } });
+  const chords = sc[2].length===7 ? sc[2].map((_,d)=>{ const a=sc[2][d], b=sc[2][(d+2)%7]+(d+2>6?12:0), c=sc[2][(d+4)%7]+(d+4>6?12:0);
+    const q = ({"4,7":"","3,7":"m","3,6":"°","4,8":"+"})[(b-a)+","+(c-a)] ?? "?"; return {deg:["I","II","III","IV","V","VI","VII"][d], name:names[(gRoot+a)%12]+q, notes:[a,b,c].map(x=>60+gRoot+x)}; }) : [];
+  document.getElementById("v-gammes").innerHTML = `<div><h2>Gammes &amp; modes</h2><p class="lede">Choisis une tonique et un mode : les notes s'allument sur le clavier (vert = tonique). Clique une touche pour l'entendre, puis rejoue-la sur ton clavier MIDI. Noms de notes à la manière de FL (Do central = C5).</p></div>
+   <div class="card"><div class="controls"><label class="inl" for="g-root">Tonique <select id="g-root" style="width:auto">${names.map((n,i)=>`<option value="${i}" ${i===gRoot?"selected":""}>${(useFlats(i)?FLT:SH)[i]}</option>`).join("")}</select></label>
+     <label class="inl" for="g-scale">Mode <select id="g-scale" style="width:auto">${SCALES.map(s=>`<option value="${s[0]}" ${s[0]===gScale?"selected":""}>${s[1]}</option>`).join("")}</select></label>
+     <button class="btn" id="g-play">▶ Jouer la gamme</button></div>
+     <div class="kb" aria-label="Clavier">${keys.map(k=>{ const on=pcs.includes(k.pc), root=k.pc===gRoot, lbl=on?names[k.pc]:"";
+       return k.black ? `<div class="b ${on?"on":""} ${root?"root":""}" data-m="${k.m}" style="left:calc(${(wIdx[k.m-1]+1)*100/14}% - 3.2%);width:6.4%">${lbl}</div>`
+                      : `<div class="w ${on?"on":""} ${root?"root":""}" data-m="${k.m}">${lbl}</div>`; }).join("")}</div>
+     <p><b>${names[gRoot]} ${sc[1]}</b> : ${pcs.map(p=>names[p]).join(" – ")}</p>
+     <p class="lede">${sc[3]} <b>Usage :</b> ${sc[4]}.</p></div>
+   ${chords.length?`<div class="card"><h3>Les accords de cette gamme</h3><p class="lede">Clique pour écouter. Toute progression faite avec ces accords sonnera « juste » dans ce mode.</p>
+     <div class="chords" style="grid-template-columns:repeat(auto-fill,minmax(90px,1fr))">${chords.map((c,i)=>`<button class="chord" data-c="${i}" style="cursor:pointer;color:var(--fg);font:inherit"><span>${c.deg}</span><b>${c.name}</b></button>`).join("")}</div></div>`:""}`;
+  document.getElementById("g-root").onchange=e=>{gRoot=+e.target.value;store.set("gRoot",gRoot);renderGammes();};
+  document.getElementById("g-scale").onchange=e=>{gScale=e.target.value;store.set("gScale",gScale);renderGammes();};
+  document.getElementById("g-play").onclick=()=>tone([...sc[2],12].map(i=>60+gRoot+i),{dur:.45,gap:.32});
+  document.querySelectorAll("#v-gammes .kb div").forEach(k=>k.addEventListener("click",()=>tone([+k.dataset.m],{dur:1})));
+  document.querySelectorAll("#v-gammes [data-c]").forEach(b=>b.addEventListener("click",()=>tone(chords[+b.dataset.c].notes,{dur:1.4})));
+}
+
+/* ---------- ENTRAÎNEMENT DE L'OREILLE ---------- */
+const INTERVALS = [[1,"2de mineure"],[2,"2de majeure"],[3,"3ce mineure"],[4,"3ce majeure"],[5,"Quarte"],[6,"Triton"],[7,"Quinte"],[8,"6te mineure"],[9,"6te majeure"],[10,"7e mineure"],[11,"7e majeure"],[12,"Octave"]];
+const CHORDQ = [["Majeur",[0,4,7]],["Mineur",[0,3,7]],["Diminué",[0,3,6]],["Augmenté",[0,4,8]],["Maj7",[0,4,7,11]],["m7",[0,3,7,10]],["7 (dominante)",[0,4,7,10]],["sus4",[0,5,7]]];
+const EAR_LEVELS = {
+  intervalles:{label:"Intervalles", easy:[3,4,5,7,12], all:INTERVALS.map(i=>i[0])},
+  accords:{label:"Accords", easy:[0,1], all:CHORDQ.map((_,i)=>i)},
+  modes:{label:"Modes", easy:["ionien","eolien"], all:["ionien","eolien","dorien","phrygien","lydien","mixolydien"]}
+};
+let ear = store.get("ear",{ok:0,total:0,best:0}), earMode = store.get("earMode","intervalles"), earHard = store.get("earHard",false), earQ=null, earStreak=0;
+function earNew(){
+  const L=EAR_LEVELS[earMode], pool=earHard?L.all:L.easy, ans=pool[Math.floor(Math.random()*pool.length)], root=48+Math.floor(Math.random()*12);
+  earQ={ans, root, answered:false}; earPlay();
+}
+function earPlay(){ if(!earQ) return; const {ans,root}=earQ;
+  if(earMode==="intervalles"){ tone([root,root+ans],{dur:.8,gap:.75}); tone([root,root+ans],{at:1.8,dur:1.2}); }
+  if(earMode==="accords"){ tone(CHORDQ[ans][1].map(i=>root+i),{dur:1.6}); tone(CHORDQ[ans][1].map(i=>root+i),{at:1.9,dur:.5,gap:.35}); }
+  if(earMode==="modes"){ const s=SCALES.find(x=>x[0]===ans)[2]; tone([...s,12].map(i=>root+12+i),{dur:.42,gap:.3}); }
+}
+function renderOreille(){
+  const L=EAR_LEVELS[earMode], pool=earHard?L.all:L.easy;
+  const label = v => earMode==="intervalles" ? INTERVALS.find(i=>i[0]===v)[1] : earMode==="accords" ? CHORDQ[v][0] : SCALES.find(s=>s[0]===v)[1];
+  const pct = ear.total ? Math.round(ear.ok/ear.total*100) : 0;
+  document.getElementById("v-oreille").innerHTML = `<div><h2>Entraîne ton oreille</h2><p class="lede">5 minutes par jour suffisent. C'est la compétence qui rend les remakes faciles et qui fait d'un compositeur un bon compositeur. +1 XP par bonne réponse.</p></div>
+   <div class="card"><div class="controls"><div class="sub" role="group" aria-label="Exercice">${Object.entries(EAR_LEVELS).map(([k,v])=>`<button data-e="${k}" aria-pressed="${k===earMode}">${v.label}</button>`).join("")}</div>
+     <label class="inl" for="ear-hard"><input type="checkbox" id="ear-hard" ${earHard?"checked":""}> Niveau complet</label></div>
+     <div class="controls"><button class="btn" id="ear-go">${earQ?"↻ Réécouter":"▶ Commencer"}</button>${earQ&&earQ.answered?`<button class="btn ghost" id="ear-next">Suivant →</button>`:""}
+       <span class="count">Série : ${earStreak} · Record : ${ear.best||0} · Réussite : ${pct} % (${ear.ok||0}/${ear.total||0})</span></div>
+     <p class="status" id="ear-fb">${earQ?(earQ.answered?earQ.fb:"Qu'as-tu entendu ?"):"Clique Commencer, écoute, puis choisis ta réponse."}</p>
+     <div class="answers">${pool.map(v=>`<button data-a="${v}" class="${earQ&&earQ.answered?(String(v)===String(earQ.ans)?"good":(String(v)===String(earQ.picked)?"bad":"")):""}" ${!earQ||earQ.answered?"disabled":""}>${label(v)}</button>`).join("")}</div></div>
+   <div class="tip"><b>Astuce :</b> associe chaque intervalle au début d'une mélodie que tu connais par cœur (une quarte, c'est le début de beaucoup d'hymnes et de fanfares). Pour les modes, écoute la note qui change par rapport au majeur ou au mineur.</div>`;
+  document.querySelectorAll("#v-oreille [data-e]").forEach(b=>b.onclick=()=>{earMode=b.dataset.e;store.set("earMode",earMode);earQ=null;renderOreille();});
+  document.getElementById("ear-hard").onchange=e=>{earHard=e.target.checked;store.set("earHard",earHard);earQ=null;renderOreille();};
+  document.getElementById("ear-go").onclick=()=>{ if(earQ && !earQ.answered) earPlay(); else earNew(); renderOreille(); };
+  const nx=document.getElementById("ear-next"); if(nx) nx.onclick=()=>{earNew();renderOreille();};
+  document.querySelectorAll("#v-oreille [data-a]").forEach(b=>b.onclick=()=>{ if(!earQ||earQ.answered) return;
+    const good = String(b.dataset.a)===String(earQ.ans); earQ.answered=true; earQ.picked=b.dataset.a; earQ.fb = good?"✓ Bravo !":"✗ C'était : "+label(earQ.ans);
+    earStreak = good?earStreak+1:0; ear={ok:(ear.ok||0)+(good?1:0), total:(ear.total||0)+1, best:Math.max(ear.best||0,earStreak)}; store.set("ear",ear); renderOreille(); });
+}
+
+/* ---------- JOURNAL DE PRATIQUE ---------- */
+let journal = store.get("journal",{}), timerStart = store.get("timerStart",null), timerI=null;
+const dayKey = d => d.toLocaleDateString("sv-SE");
+function addMinutes(n){ const k=dayKey(new Date()); journal[k]=Math.min(1440,(+journal[k]||0)+n); store.set("journal",journal); }
+function streak(){ let s=0, d=new Date(); if(!(+journal[dayKey(d)]>=15)) d.setDate(d.getDate()-1); while(+journal[dayKey(d)]>=15){ s++; d.setDate(d.getDate()-1); } return s; }
+function renderJournal(){
+  clearInterval(timerI);
+  const today=+journal[dayKey(new Date())]||0, days=[], end=new Date(), start=new Date();
+  start.setDate(start.getDate()-77-((start.getDay()+6)%7));   // un lundi, il y a 11 à 12 semaines : une colonne = une semaine
+  for(let d=new Date(start); d<=end; d.setDate(d.getDate()+1)){ const m=+journal[dayKey(d)]||0; days.push({k:dayKey(d), m, l:m===0?0:m<30?1:m<90?2:3}); }
+  const week=Object.entries(journal).filter(([k])=>new Date(k)>=new Date(Date.now()-7*864e5)).reduce((a,[,m])=>a+(+m||0),0);
+  document.getElementById("v-journal").innerHTML = `<div><h2>Journal de pratique</h2><p class="lede">Lance le chrono quand tu ouvres FL, arrête-le quand tu as fini. Chaque jour avec au moins 20 minutes rapporte 5 XP, et 15 minutes suffisent à garder ta série.</p></div>
+   <div class="two"><div class="card"><h3>Session en cours</h3><div class="timer" id="j-timer">00:00</div>
+     <div class="controls"><button class="btn" id="j-go">${timerStart?"■ Terminer la session":"▶ Démarrer une session"}</button>
+     <label class="inl" for="j-add">ou ajouter <input type="number" id="j-add" min="5" max="600" step="5" value="30"> min</label><button class="btn ghost" id="j-add-btn">Ajouter</button></div></div>
+    <div class="card"><h3>Tes chiffres</h3><dl class="specs"><div class="spec"><dt>Aujourd'hui</dt><dd>${today} min</dd></div><div class="spec"><dt>7 derniers jours</dt><dd>${Math.round(week/6)/10} h</dd></div>
+     <div class="spec"><dt>Série</dt><dd>${streak()} jour${streak()>1?"s":""}</dd></div><div class="spec"><dt>Total</dt><dd>${Math.round(Object.values(journal).reduce((a,m)=>a+(+m||0),0)/6)/10} h</dd></div></dl>
+     <p class="lede">Objectif conseillé : 5 h par semaine, en sessions courtes et régulières plutôt qu'une grosse session.</p></div></div>
+   <div class="card"><h3>12 dernières semaines</h3><div class="heat">${days.map(d=>`<i data-l="${d.l}" title="${d.k} : ${d.m} min"></i>`).join("")}</div></div>`;
+  const tick=()=>{ const el=document.getElementById("j-timer"); if(!el) return clearInterval(timerI); const s=timerStart?Math.floor((Date.now()-timerStart)/1000):0; el.textContent=`${String(Math.floor(s/3600)).padStart(2,"0")}:${String(Math.floor(s/60)%60).padStart(2,"0")}${s<3600?":"+String(s%60).padStart(2,"0"):""}`; };
+  tick(); if(timerStart) timerI=setInterval(tick,1000);
+  document.getElementById("j-go").onclick=()=>{ if(timerStart){ addMinutes(Math.round((Date.now()-timerStart)/60000)); timerStart=null; } else timerStart=Date.now(); store.set("timerStart",timerStart); renderJournal(); };
+  document.getElementById("j-add-btn").onclick=()=>{ const n=Math.max(0,Math.min(600,+document.getElementById("j-add").value||0)); if(n){ addMinutes(n); renderJournal(); } };
+}
+
+/* ---------- SYNCHRO IMAGE ---------- */
+let spot = store.get("spot",{start:"0", min:70, max:140, sub:2, hits:[{t:"0:12.5",d:"Coupe : plan large"},{t:"0:24.0",d:"Le héros se retourne"},{t:"0:41.3",d:"Explosion"}], bpm:null});
+const parseTC = s => { s=String(s).trim().replace(",","."); const m=/^(?:(\d+):)?(\d+(?:\.\d+)?)$/.exec(s); return m ? (+(m[1]||0))*60 + (+m[2]) : NaN; };
+function fitTempo(){
+  const st=parseTC(spot.start)||0, hits=spot.hits.map(h=>parseTC(h.t)).filter(t=>!isNaN(t)&&t>=st), res=[];
+  if(!hits.length) return [];
+  for(let b=Math.max(20,+spot.min||60); b<=Math.min(300,+spot.max||180); b=Math.round((b+.1)*10)/10){
+    const u=60/b/(+spot.sub||1), devs=hits.map(t=>{ const x=(t-st)/u; return Math.abs(x-Math.round(x))*u*1000; });
+    res.push({b, mean:devs.reduce((a,c)=>a+c,0)/devs.length, max:Math.max(...devs)}); }
+  res.sort((a,b)=>a.mean-b.mean); const top=[]; res.forEach(r=>{ if(top.length<5 && top.every(t=>Math.abs(t.b-r.b)>=2)) top.push(r); }); return top;
+}
+function posOf(t, bpm){ const st=parseTC(spot.start)||0, beat=60/bpm, n=(t-st)/beat, bar=Math.floor(n/4)+1, bt=n-(bar-1)*4;
+  const sub=+spot.sub||1, q=Math.round(bt*sub)/sub, dev=Math.round((bt-q)*beat*1000); return {txt:`${bar}.${Math.floor(q)+1}${sub>1&&q%1?` +${Math.round((q%1)*sub)}/${sub}`:""}`, dev}; }
+function spotText(){ const b=spot.bpm; return `Fiche de repérage — début musique ${spot.start}, tempo ${b??"?"} BPM\n\n` + spot.hits.map((h,i)=>{ const t=parseTC(h.t), p=b&&!isNaN(t)?posOf(t,b):null; return `${i+1}. ${h.t}  ${p?`mesure ${p.txt} (${p.dev>0?"+":""}${p.dev} ms)`:""}  ${h.d}`; }).join("\n"); }
+function renderImage(){
+  const top=fitTempo(); if(spot.bpm==null && top[0]) spot.bpm=top[0].b;
+  document.getElementById("v-image").innerHTML = `<div><h2>Synchro à l'image</h2><p class="lede">Note les moments clés de ta scène (coupes, actions, émotions). L'outil cherche le tempo qui fait tomber le plus de moments sur un temps, puis te donne la mesure exacte de chacun : tu n'as plus qu'à placer tes accents dans FL.</p></div>
+   <div class="card"><div class="form">
+     <label class="field" for="sp-start">Début de la musique (m:ss)<input id="sp-start" value="${esc(spot.start)}"></label>
+     <label class="field" for="sp-min">Tempo min<input id="sp-min" type="number" value="${spot.min}"></label>
+     <label class="field" for="sp-max">Tempo max<input id="sp-max" type="number" value="${spot.max}"></label>
+     <label class="field" for="sp-sub">Accents sur<select id="sp-sub"><option value="1" ${spot.sub==1?"selected":""}>les temps (noires)</option><option value="2" ${spot.sub==2?"selected":""}>les croches</option><option value="4" ${spot.sub==4?"selected":""}>les doubles croches</option></select></label></div>
+    <div class="tbl-wrap hits" style="margin-top:12px"><table><thead><tr><th>#</th><th>Timecode (m:ss.d)</th><th>Moment</th><th>Position</th><th></th></tr></thead><tbody>
+     ${spot.hits.map((h,i)=>{ const t=parseTC(h.t), p=spot.bpm&&!isNaN(t)?posOf(t,spot.bpm):null; return `<tr><td>${i+1}</td><td><input data-i="${i}" data-f="t" value="${esc(h.t)}" aria-label="Timecode ${i+1}"></td><td><input data-i="${i}" data-f="d" value="${esc(h.d)}" aria-label="Moment ${i+1}"></td>
+       <td class="mono ${p?(Math.abs(p.dev)<=40?"okc":"badc"):""}">${isNaN(t)?"format ?":p?`${p.txt} · ${p.dev>0?"+":""}${p.dev} ms`:""}</td><td><button class="btn ghost" data-del="${i}" aria-label="Supprimer">✕</button></td></tr>`; }).join("")}
+    </tbody></table></div>
+    <div class="controls" style="margin-top:10px"><button class="btn ghost" id="sp-add">+ Ajouter un moment</button><button class="btn ghost" id="sp-copy">Copier la fiche</button><button class="btn ghost" id="sp-dl">⬇ Télécharger (.txt)</button><span class="status" id="sp-st"></span></div></div>
+   <div class="card"><h3>Tempos proposés</h3>${top.length?`<div class="prog-list">${top.map(r=>`<button class="prog g-film" data-b="${r.b}" aria-pressed="${r.b===spot.bpm}"><span><b>${r.b} BPM</b><small>écart moyen ${Math.round(r.mean)} ms · pire ${Math.round(r.max)} ms</small></span><span class="tag g-film">${r.mean<25?"parfait":r.mean<60?"bon":"à ajuster"}</span></button>`).join("")}</div>
+    <p class="lede" style="margin-top:8px">Moins de 40 ms d'écart passe inaperçu. Au-delà, ajuste avec une automation de tempo dans FL, ou déplace le début de la musique.</p>`:`<p class="lede">Ajoute au moins un moment après le début de la musique.</p>`}</div>
+   <div class="tip"><b>Dans FL :</b> règle le tempo choisi, charge la vidéo dans Fruity Video Player 2, puis place un marqueur de temps sur chaque position de la fiche.</div>`;
+  const re=()=>{ store.set("spot",spot); renderImage(); };
+  [["sp-start","start"],["sp-min","min"],["sp-max","max"],["sp-sub","sub"]].forEach(([id,k])=>document.getElementById(id).onchange=e=>{ spot[k]=e.target.value; spot.bpm=null; re(); });
+  document.querySelectorAll("#v-image .hits input").forEach(inp=>inp.onchange=()=>{ spot.hits[+inp.dataset.i][inp.dataset.f]=inp.value.slice(0,200); if(inp.dataset.f==="t") spot.bpm=null; re(); });
+  document.querySelectorAll("#v-image [data-del]").forEach(b=>b.onclick=()=>{ spot.hits.splice(+b.dataset.del,1); spot.bpm=null; re(); });
+  document.getElementById("sp-add").onclick=()=>{ if(spot.hits.length<60){ spot.hits.push({t:"",d:""}); re(); } };
+  document.querySelectorAll("#v-image [data-b]").forEach(b=>b.onclick=()=>{ spot.bpm=+b.dataset.b; re(); });
+  const st=document.getElementById("sp-st");
+  document.getElementById("sp-copy").onclick=async()=>{ try{ await navigator.clipboard.writeText(spotText()); st.textContent="Fiche copiée."; }catch(e){ st.textContent="Copie impossible ici : utilise Télécharger."; } };
+  document.getElementById("sp-dl").onclick=async()=>{ const txt=spotText();
+    if(!window.claude){ const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([txt],{type:"text/plain"})); a.download="fiche-reperage.txt"; document.body.append(a); a.click(); a.remove(); return; }
+    const dl=await cap("downloads"); if(!dl){ st.textContent="Téléchargement indisponible ici."; return; }
+    try{ await dl.save({filename:"fiche-reperage.txt", data:txt}); st.textContent="Fiche enregistrée."; }catch(e){ st.textContent=e&&e.code==="declined"?"":"Téléchargement impossible."; } };
+}
+
+/* ---------- AVIS DE CLAUDE ---------- */
+let avisCtl=null;
+async function renderAvis(){
+  const el=document.getElementById("v-avis");
+  el.innerHTML = `<div><h2>Avis de Claude</h2><p class="lede">Fais une capture d'écran de FL (Playlist, Mixer, Piano Roll, réglages d'un plugin) et pose ta question : Claude commente ton arrangement, ton routage ou tes réglages et te dit quoi faire. Il voit l'image, il n'entend pas le son.</p></div>
+   <div class="card" id="avis-card"><p class="status" id="avis-off">Chargement…</p></div>`;
+  const s = await cap("sample"); const card=document.getElementById("avis-card"); if(!card) return;
+  if(!s){ card.innerHTML=`<p class="lede">Cette fonction marche quand la page est ouverte dans Claude. En attendant, pose ta question directement dans une conversation avec Claude, capture d'écran jointe.</p>`; return; }
+  const lim = await s.limits().catch(()=>null), img = !!(lim&&lim.images);
+  card.innerHTML = `<div class="form">${img?`<label class="field" for="av-img">Capture d'écran (PNG, JPG)<input id="av-img" type="file" accept="${lim.images.mediaTypes.join(",")}"></label>`:""}
+     <label class="field" for="av-q" style="grid-column:1/-1">Ta question<textarea id="av-q" placeholder="ex. Mon drop manque de punch, qu'est-ce que je change dans ce mixer ?"></textarea></label></div>
+   <div class="controls"><button class="btn" id="av-go">Demander à Claude</button><button class="btn ghost" id="av-stop" hidden>Arrêter</button><span class="status" id="av-st"></span></div>
+   <div class="answer" id="av-out" hidden></div>`;
+  document.getElementById("av-go").onclick=async()=>{
+    const q=document.getElementById("av-q").value.trim().slice(0,2000), f=img?document.getElementById("av-img").files[0]:null, out=document.getElementById("av-out"), st=document.getElementById("av-st"), go=document.getElementById("av-go"), stop=document.getElementById("av-stop");
+    if(!q && !f){ st.textContent="Ajoute une question ou une capture."; return; }
+    avisCtl=new AbortController(); go.disabled=true; stop.hidden=false; out.hidden=false; out.textContent="Claude regarde…"; st.textContent="";
+    const prompt=`Tu es à la fois ingénieur du son et compositeur, et tu coaches un élève qui apprend FL Studio Producer Edition (avec Vital et BBC Symphony Orchestra). Son niveau : ${level().name}. Style qu'il travaille : ${GN[genre]}.
+${f?"Il t'envoie une capture d'écran de son projet FL Studio. Décris d'abord brièvement ce que tu vois, puis réponds.":"Il n'a pas joint de capture."}
+Sa question : ${q||"Que penses-tu de ce que tu vois et que dois-je améliorer en priorité ?"}
+Réponds en français, en texte simple : titres courts, listes à tirets, pas de tableau, pas de Markdown gras. Termine par 3 actions concrètes à faire dans FL Studio, numérotées. Si l'image ne permet pas de juger (le son compte), dis-le.`;
+    try{ await s(prompt,{signal:avisCtl.signal, cache:false, images:f?[f]:undefined, onText:({text})=>{ out.textContent=text; }}); }
+    catch(e){ out.textContent=e.text||""; out.hidden=!e.text; st.textContent={not_granted:"Tu n'as pas autorisé la page à utiliser Claude.",rate_limited:"Trop de demandes : réessaie dans quelques minutes.",image_rejected:"Image refusée : essaie une capture PNG ou JPG plus petite.",cancelled:""}[e&&e.code] ?? "Erreur passagère : réessaie."; }
+    finally{ go.disabled=false; stop.hidden=true; }
+  };
+  document.getElementById("av-stop").onclick=()=>avisCtl&&avisCtl.abort();
+}
+
+/* ---------- QUIZ D'ÉTAPE ---------- */
+let quiz = store.get("quiz",{}), quizState = {};
+async function startQuiz(i, box){
+  const s = await cap("sample"); if(!s) return;
+  box.innerHTML = `<p class="status">Claude prépare 3 questions…</p>`;
+  const st=STAGES[i], tasks=st.tasks.map(t=>t[1]).join("\n- ");
+  try{
+    const qs = await s.json(`Crée un mini-quiz de validation, en français, pour un élève qui apprend FL Studio. Étape : « ${st.t} ». Ce que l'étape enseigne :\n- ${tasks}\n\nÉcris 3 questions à choix multiples, pratiques (que faire dans FL ou quel son/choix musical), pas de pièges sur des détails de menu. Réponds uniquement avec un tableau JSON : [{"q": string, "choix": [4 strings], "bonne": index 0-3, "explication": string courte}]`, {cache:false, modelTier:"quick"});
+    if(!Array.isArray(qs) || !qs.length) throw {code:"invalid_json"};
+    quizState[i] = {qs:qs.slice(0,3), picks:{}}; drawQuiz(i, box);
+  }catch(e){ box.innerHTML = `<p class="status">${e&&e.code==="not_granted"?"Tu n'as pas autorisé la page à utiliser Claude.":"Le quiz n'a pas pu être créé : réessaie."}</p>`; }
+}
+function drawQuiz(i, box){
+  const S=quizState[i], done=Object.keys(S.picks).length===S.qs.length, score=S.qs.filter((q,k)=>S.picks[k]===+q.bonne).length;
+  if(done && score>=2 && !quiz[i]){ quiz[i]=true; store.set("quiz",quiz); }
+  box.innerHTML = S.qs.map((q,k)=>{ const p=S.picks[k]; return `<div class="quiz"><b>${k+1}. ${esc(q.q)}</b><div class="answers">${(q.choix||[]).map((c,j)=>`<button data-k="${k}" data-j="${j}" class="${p!=null?(j===+q.bonne?"good":j===p?"bad":""):""}" ${p!=null?"disabled":""}>${esc(c)}</button>`).join("")}</div>${p!=null?`<p class="status">${esc(q.explication)}</p>`:""}</div>`; }).join("")
+   + (done?`<p class="${score>=2?"okc":"badc"}"><b>${score}/${S.qs.length}</b> ${score>=2?"· Étape certifiée, +30 XP !":"· Révise un peu et retente ta chance."}</p>`:"");
+  box.querySelectorAll("button[data-k]").forEach(b=>b.onclick=()=>{ S.picks[+b.dataset.k]=+b.dataset.j; drawQuiz(i, box); });
+}
+
+/* ---------- BUSINESS ---------- */
+const BIZ = [
+ {t:"Protéger et toucher tes droits (France)", g:"all", items:[
+  "Tes œuvres sont protégées dès leur création. Garde des preuves datées (projets FL, exports, envois).",
+  "La SACEM collecte tes droits d'auteur quand ta musique est diffusée (radio, TV, streaming, cinéma, concerts). Tu peux y adhérer dès que tu as des œuvres diffusées ou exploitées.",
+  "Déclare chaque œuvre à la SACEM (titre, auteurs, compositeurs, répartition) dès qu'elle est sortie ou diffusée.",
+  "Le streaming rapporte aussi des droits voisins (pour la production de l'enregistrement) : renseigne-toi sur les organismes de producteurs si tu sors ta musique toi-même.",
+  "Les règles et conditions évoluent : vérifie toujours sur sacem.fr avant de signer ou de déclarer."]},
+ {t:"Musique de film", g:"film", items:[
+  "Commande : la production te commande une musique ; un contrat fixe le prix, les délais, les droits cédés et qui paie l'enregistrement.",
+  "Package deal : on te verse une somme globale et c'est toi qui paies musiciens, studio et mixage. Calcule tes coûts avant d'accepter.",
+  "Cue sheet (relevé des musiques) : liste de chaque morceau du film avec sa durée et son usage. La production l'envoie à la SACEM ; c'est ce qui déclenche tes droits de diffusion. Vérifie qu'elle est faite.",
+  "Synchronisation : utiliser une musique existante sur une image demande une autorisation (licence de synchro) des ayants droit.",
+  "Éditeur : la production demande souvent l'édition de la musique. Négocie la part et la durée, et fais relire le contrat.",
+  "Pour débuter : courts-métrages d'écoles de cinéma, jeux vidéo indés, festivals. Tes rescorings de films libres forment ta démo."]},
+ {t:"Rap, samples et beats", g:"rap", items:[
+  "Sampler un morceau existant demande deux autorisations : celle du propriétaire de l'enregistrement (souvent le label) et celle de l'éditeur de la composition.",
+  "Sans autorisation, un beat samplé peut être retiré des plateformes ou bloqué. Pour vendre ou sortir, préfère des samples libres de droits ou recrée la boucle toi-même.",
+  "Packs de samples (Splice, etc.) : lis la licence. En général tu peux les utiliser dans ta musique, mais pas les revendre tels quels.",
+  "Vente de beats : propose une licence non exclusive (moins chère, le beat peut être vendu à d'autres) et une licence exclusive. Écris clairement ce que l'acheteur peut faire (streams, clips, concerts) et ta part de droits d'auteur."]},
+ {t:"Électro et house", g:"electro", items:[
+  "Labels : envoie des démos finies et masterisées, une à la fois, au bon label (écoute leur catalogue). Lien privé d'écoute plutôt qu'un fichier.",
+  "Distribution en indépendant : un distributeur numérique met ta musique sur les plateformes ; compare commissions et abonnements.",
+  "Remixes : un remix officiel se fait avec l'accord du label ; un bootleg non autorisé ne peut pas être vendu.",
+  "Les stems d'un morceau d'un autre artiste ne t'appartiennent pas, même s'ils sont en ligne."]},
+ {t:"Ton portfolio", g:"all", items:[
+  "Une page simple : 3 à 6 morceaux, tes meilleurs, pas tes plus nombreux.",
+  "Pour le film : des vidéos avec ta musique (films libres de Blender Studio, courts-métrages d'amis, avec leur accord).",
+  "Ne publie pas tes remakes de morceaux existants : ce sont des exercices.",
+  "Crédite toujours les images et les sons que tu utilises."]}
+];
+function renderBusiness(){
+  const blocks = BIZ.filter(b=>fits([b.g]) || (b.g==="electro" && genre==="house"));
+  document.getElementById("v-business").innerHTML = `<div><h2>Le métier : droits et contrats</h2><p class="lede">Les bases pour ne pas te faire avoir le jour où ta musique sort ou est payée. Ce sont des repères, pas un conseil juridique : pour un contrat réel, fais-toi relire par un professionnel ou ta société de gestion de droits.</p></div>
+   <div class="two">${blocks.map(b=>`<div class="card g-${b.g}"><div class="card-head"><h3>${b.t}</h3>${b.g!=="all"?`<span class="tag g-${b.g}">${GN[b.g]}</span>`:""}</div><ul class="org">${b.items.map(i=>`<li>${i}</li>`).join("")}</ul></div>`).join("")}</div>`;
+}
+
+/* ---------- NAVIGATION ---------- */
+const GROUPS = [
+ {k:"prog", t:"Progresser", s:"Quêtes, parcours, oreille", v:[["quetes","Quêtes"],["parcours","Parcours A → Z"],["oreille","Oreille"],["journal","Journal"]]},
+ {k:"creer", t:"Créer", s:"Remake, modèles, outils", v:[["remake","Studio remake"],["modeles","Modèles"],["atelier","Accords"],["gammes","Gammes"],["image","Synchro image"],["avis","Avis de Claude"]]},
+ {k:"savoir", t:"Ressources", s:"Vidéos, plugins, conseils", v:[["videos","Vidéos"],["genres","Fiches genre"],["outils","Plugins & presets"],["boite","Boîte à outils"],["organisation","Organiser FL"],["business","Droits & contrats"],["rappel","Raccourcis"]]}
+];
+const VIEWS={quetes:renderQuetes,remake:renderRemake,videos:renderVideos,journal:renderJournal,oreille:renderOreille,gammes:renderGammes,image:renderImage,avis:renderAvis,business:renderBusiness,parcours:renderParcours,genres:renderGenres,modeles:renderModeles,outils:renderOutils,boite:renderBoite,organisation:renderOrganisation,atelier:renderAtelier,rappel:renderRappel};
+function current(){ const h=location.hash.slice(1); return VIEWS[h]?h:"quetes"; }
+function show(){
+  const v=current(); stopPlay();
+  Object.keys(VIEWS).forEach(k=>document.getElementById("v-"+k).hidden = k!==v);
+  const g = GROUPS.find(G=>G.v.some(x=>x[0]===v));
+  document.getElementById("groups").innerHTML = GROUPS.map(G=>`<button data-go="${G.v[0][0]}" aria-current="${G===g}">${G.t}<small>${G.s}</small></button>`).join("");
+  document.getElementById("tabs").innerHTML = g.v.map(([k,t])=>`<a href="#${k}" ${k===v?'aria-current="page"':""}>${t}</a>`).join("");
+  document.querySelectorAll("#groups button").forEach(b=>b.onclick=()=>{ location.hash=b.dataset.go; });
+  document.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",c.dataset.g===genre));
+  VIEWS[v](); hud();
+}
+// Fusion : une case cochée sur un appareil reste cochée ; le journal garde le plus grand total du jour.
+function mergeMaps(a,b,max){ const o={...(a||{})}; for(const k in (b||{})) o[k] = max ? Math.max(+o[k]||0, +b[k]||0) : (o[k] || b[k]); return o; }
+function applyRemote(d, merge){
+  const pick = (k,cur) => merge ? mergeMaps(cur, d[k], k==="journal") : (d[k]||{});
+  checks=pick("checks",checks); doneModels=pick("models",doneModels); installed=pick("installed",installed); seen=pick("seen",seen);
+  quiz=pick("quiz",quiz); journal=pick("journal",journal);
+  ear = merge ? {ok:Math.max(ear.ok||0,(d.ear||{}).ok||0), total:Math.max(ear.total||0,(d.ear||{}).total||0), best:Math.max(ear.best||0,(d.ear||{}).best||0)} : (d.ear||{ok:0,total:0,best:0});
+  spot = (d.spot && d.spot.hits) ? d.spot : spot;
+  [["checks",checks],["models",doneModels],["installed",installed],["seen",seen],["quiz",quiz],["ear",ear],["journal",journal],["spot",spot]].forEach(([k,v])=>store.set(k,v,true));
+  store.set("updatedAt", merge ? Date.now() : (d.updatedAt||0), true);
+  show();
+}
+(async()=>{ try{
+  const [db,user] = [await cap("db"), await cap("user")];
+  if(!db || !user) return;
+  const id = await user.id(); if(!id) return;
+  dbDoc = db.doc("data/users/"+id+"/progress"); dbCol = db.collection("data/users/"+id);
+  let first = true;
+  dbDoc.onSnapshot(snap=>{
+    if(snap.hasPendingWrites) return;
+    if(first){ first=false; if(snap.exists) applyRemote(snap.data(), true); queueSync(); return; }   // 1re fois : fusion
+    if(snap.exists && (snap.data().updatedAt||0) > store.get("updatedAt",0)) applyRemote(snap.data(), false); // autre appareil
+  }, ()=>{});
+  const qs = await dbCol.get(); const byId = Object.fromEntries(remakes.map(r=>[r.id,r]));
+  qs.docs.filter(s=>s.id.startsWith("rm-") && s.exists).forEach(s=>{ const r=s.data(); if(!byId[r.id] || (r.upd||0) > (byId[r.id].upd||0)) byId[r.id]=r; });
+  remakes = Object.values(byId).sort((a,b)=>(b.upd||0)-(a.upd||0)); store.set("remakes",remakes,true);
+  remakes.forEach(r=>{ if(!qs.docs.some(s=>s.id==="rm-"+r.id)) syncRemake(r); });
+  show();
+}catch(e){} })();
+document.querySelectorAll(".chip").forEach(c=>c.addEventListener("click",()=>{genre=c.dataset.g;store.set("genre",genre);show();}));
+window.addEventListener("hashchange",show);
+show();
+</script>
+</body></html>
